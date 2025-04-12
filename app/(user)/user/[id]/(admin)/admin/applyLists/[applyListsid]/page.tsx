@@ -1,0 +1,249 @@
+"use client";
+
+import { Apply_Accept_Schema } from "@/actions/Apply-Accept/schema";
+import { Apply_Reject_Schema } from "@/actions/Apply-Reject/schema";
+import { Button } from "@/components/ui/button";
+import { useParams } from "next/navigation";
+import { useEffect, useState, useTransition } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { 
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage 
+} from "@/components/ui/form";
+import { Apply_Accept_Action } from "@/actions/Apply-Accept";
+import { Apply_Reject_Action } from "@/actions/Apply-Reject";
+import { Apply_Accept_Task_Schema } from "@/actions/Apply-Accept-Task/schema";
+import { Apply_Reject_Task_Schema } from "@/actions/Apply-Reject-Task/schema";
+import { Apply_Accept_Task_Action } from "@/actions/Apply-Accept-Task";
+import { Apply_Reject_Task_Action } from "@/actions/Apply-Reject-Task";
+import Link from "next/link";
+const ApplyListsByIdAdmin = () => {
+    const param = useParams();
+    
+    const UserId = param?.id as string;
+    const applyId = param?.applyListsid as string;
+
+
+    const [ GetApplyDatabyId , setGetApplyDatabyId ] = useState([]);
+    const [ GetUserDataById , setGetUserDataById ] = useState([]);
+
+    const [ isPending , startTransition ] =useTransition();
+
+    useEffect(()=>{
+        const getApplyListsDatabyId = async (id: string) => {
+            const res = await fetch(`/api/Apply_Lists_by_ID/${id}`);
+            if (!res.ok) {
+                throw new Error("斷線!");
+            }
+            const result = await res.json();
+            setGetApplyDatabyId(result);
+
+
+        }
+        getApplyListsDatabyId(applyId)
+    },[applyId])
+
+console.log(GetApplyDatabyId)
+
+
+
+    const jobId = GetApplyDatabyId[0]?.apply_job_id;
+    const applyuserId = GetApplyDatabyId[0]?.apply_user_id;
+    const applyType = GetApplyDatabyId[0]?.apply_type;
+
+    const TaskId = GetApplyDatabyId[0]?.apply_task_id;
+
+        useEffect(() => {
+            const getuserlistsdatabyid = async (id: string) =>{
+                const res = await fetch(`/api/User_Lists_by_ID/${id}`);
+                if(!res.ok) {
+                    throw new Error("斷線!");
+                }
+                const result = await res.json();
+                setGetUserDataById(result)
+            }
+            getuserlistsdatabyid(applyuserId)
+        },[applyuserId])
+
+        console.log("GetUserDataById : ",GetUserDataById)
+
+    const username = GetUserDataById[0]?.username;
+
+
+/* --------------------JOB--------------------------- */
+
+    const apply_job_status_Accept = useForm<z.infer<typeof Apply_Accept_Schema>>({
+        resolver: zodResolver(Apply_Accept_Schema),
+        defaultValues:{
+         userId: UserId,
+         jobId: jobId,
+         applyuserId: applyuserId,
+         job_apply: true,
+         applyId:applyId,
+         applyusername: username
+        }
+      })
+
+      const apply_job_status_Reject = useForm<z.infer<typeof Apply_Reject_Schema>>({
+        resolver: zodResolver(Apply_Reject_Schema),
+        defaultValues:{
+         userId: UserId,
+         jobId: jobId,
+         job_apply: false
+        }
+      })
+
+      if(applyType === "JOB"){
+        apply_job_status_Accept.setValue('jobId',jobId);
+        apply_job_status_Accept.setValue('userId',UserId);
+        apply_job_status_Accept.setValue('applyuserId',applyuserId);
+        apply_job_status_Accept.setValue('applyId',applyId);
+        apply_job_status_Accept.setValue('applyusername' , username);
+
+
+        apply_job_status_Reject.setValue('jobId',jobId);
+      }
+
+ 
+
+    const apply_job_status_Accept_onSubmit = (values:z.infer<typeof Apply_Accept_Schema>) => {
+        console.log("-- apply_job_status_Accept_data -- :",values,"-- End --" );
+        startTransition(() => {
+            Apply_Accept_Action(values);
+        })
+    }
+    const apply_job_status_Reject_onSubmit = (values:z.infer<typeof Apply_Reject_Schema>) => {
+        console.log("-- apply_job_status_Reject_data -- :",values,"-- End --" );
+        startTransition(() => {
+            Apply_Reject_Action(values);
+        })
+    }
+
+    /* --------------------------JOB  END----------------------------------------  */
+
+    /* -------------------TASK------------------------- */
+    const apply_task_status_Accept = useForm<z.infer<typeof Apply_Accept_Task_Schema>>({
+        resolver: zodResolver(Apply_Accept_Task_Schema),
+        defaultValues:{
+            applyId: applyId,
+            taskId: TaskId,
+            userId: UserId,
+            task_apply: true,
+            applyuserId: applyuserId,
+            applyusername: username
+        }
+    })
+
+    const apply_task_status_Reject = useForm<z.infer<typeof Apply_Reject_Task_Schema>>({
+        resolver: zodResolver(Apply_Reject_Task_Schema),
+        defaultValues:{
+            taskId: "",
+            userId: "",
+            task_apply: false,
+        }
+    })
+     if(applyType === "TASK"){
+        apply_task_status_Accept.setValue("taskId",TaskId);
+        apply_task_status_Accept.setValue("userId",UserId);
+        apply_task_status_Accept.setValue("applyuserId",applyuserId);
+        apply_task_status_Accept.setValue("applyId",applyId)
+        apply_task_status_Accept.setValue('applyusername' , username);
+
+        apply_task_status_Reject.setValue("taskId",TaskId);
+      }
+
+      const apply_task_status_Accept_onSubmit = (values:z.infer<typeof Apply_Accept_Task_Schema>) => {
+        console.log("-- apply_task_status_Accept_data -- :",values,"-- End --" );
+        startTransition(() => {
+            Apply_Accept_Task_Action(values);
+        })
+    }
+    const apply_task_status_Reject_onSubmit = (values:z.infer<typeof Apply_Reject_Task_Schema>) => {
+        console.log("-- apply_task_status_Reject_data -- :",values,"-- End --" );
+        startTransition(() => {
+            Apply_Reject_Task_Action(values);
+        })
+    }
+
+
+
+
+    /*-----------------------------Task END---------------------------------- */
+
+    return(
+        <>
+            <Link href={`/user/${UserId}/admin/applyLists/`} >
+            返回
+            </Link>
+
+            ApplyListsByIdAdmin
+
+            <div>
+                {GetApplyDatabyId?.map((d:any)=>{
+                    if(d.apply_type === "JOB"){
+                        return(
+                    <div key={d.id}>
+                        <p>JOB()</p>
+                       申請人 :  {d.applicant_name}
+                       <br />
+                       申請編號： {d.apply_code}
+                       申請工作編號: {d.apply_job_code}
+                       申請標題: {d.apply_title}
+                       申請內容:  {d.apply_contect}
+                        <br />
+                        <Form {...apply_job_status_Accept}>
+                            <form onSubmit={apply_job_status_Accept.handleSubmit(apply_job_status_Accept_onSubmit)}>
+                                <Button>接受</Button>
+                            </form>
+                        </Form>
+                       <br />
+                       <Form {...apply_job_status_Reject}>
+                            <form onSubmit={apply_job_status_Reject.handleSubmit(apply_job_status_Reject_onSubmit)}>
+                                <Button>拒絕</Button>
+                            </form>
+                        </Form>
+                    </div>
+                        )
+                    }
+
+                    if(d.apply_type === "TASK"){
+                        return(
+                            <div key={d.id}>
+                                <p>TASK()</p>
+                               申請人 :  {d.applicant_name}
+                               <br />
+                               申請編號： {d.apply_code}
+                               申請工作編號: {d.apply_job_code}
+                               申請標題: {d.apply_title}
+                               申請內容:  {d.apply_contect}
+                                <br />
+                                <Form {...apply_job_status_Accept}>
+                                    <form onSubmit={apply_task_status_Accept.handleSubmit(apply_task_status_Accept_onSubmit)}>
+                                        <Button>接受</Button>
+                                    </form>
+                                </Form>
+                               <br />
+                               <Form {...apply_job_status_Reject}>
+                                    <form onSubmit={apply_task_status_Reject.handleSubmit(apply_task_status_Reject_onSubmit)}>
+                                        <Button>拒絕</Button>
+                                    </form>
+                                </Form>
+                            </div>
+                                )
+                                
+                    }
+                })}
+            </div>
+
+
+        </>
+    )
+}
+
+export default ApplyListsByIdAdmin

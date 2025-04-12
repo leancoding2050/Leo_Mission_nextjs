@@ -1,0 +1,51 @@
+
+"use client";
+
+import { Checkbox } from "@/components/ui/checkbox";
+import useSWR from "swr";
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage
+} from "@/components/ui/form";
+
+const fetcher = (...args) => fetch(...args).then((res) => res.json());
+
+export const SWR_Place = ({ field , fieldState }) => {
+    const { data, error, isLoading } = useSWR('http://127.0.0.1:8000/api/mission/missionplace/', fetcher);
+
+    if (error) return <> error : {error} </>;
+    if (isLoading) return <> 載入中 .... </>;
+
+    // console.log("data : ", data);
+
+    const fieldValue =Array.isArray(field.value)? field.value : [];
+    // console.log("Field State_place:", fieldState.error); // 檢查錯誤訊息
+
+    return (
+        <>
+            {data.map((datas) => (
+                <div key={datas.id}> {/* 添加 key 屬性 */}
+                    <Checkbox
+                        checked={fieldValue.includes(datas.mission_place)}
+                        onCheckedChange={(checked) => {
+                            return checked
+                                ? field.onChange([...fieldValue,datas.mission_place])
+                                : field.onChange(
+                                    fieldValue.filter(
+                                        (value) => value !== datas.mission_place
+                                    )
+                                );
+                        }}
+                    />
+                    <FormLabel className="font-normal">
+                        {datas.mission_place}
+                    </FormLabel>
+                </div>
+            ))}
+        </>
+    );
+};

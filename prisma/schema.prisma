@@ -1,0 +1,188 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String         @id @default(cuid())
+  email        String         @unique // 確保 email 是唯一的
+  nickname     String
+  username     String         @unique
+  password     String
+  role         UserRole       @default(TEACHER)
+  phone        String
+  SCRC         String
+  isLogin      Boolean
+  isAdmin      Boolean
+  isStaff      Boolean
+  area         String[]
+  place        String[]
+  subject      String[]
+  color        String
+  Apply        Apply[]
+  job          Job[]
+  remakes      Remake[]
+  task         Task[] @relation("UserTasks")
+  image         Image[]
+  salary        Salary[] @relation("UserSalary")
+  passwordResetTokens PasswordResetToken[] // 新增關聯
+
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  email     String
+  user      User     @relation(fields: [email], references: [email])
+  createdAt DateTime @default(now())
+  expiresAt DateTime // 設置過期時間
+}
+
+model Image {
+  id      String  @id @default(cuid())
+  path    String
+  user    User    @relation(fields: [image_user_id], references: [id])
+  image_user_id String
+  image   String
+}
+
+
+model Remake {
+  id         String   @id @default(cuid())
+  content    String
+  authorname String?
+  Username_id String?
+  createAt   DateTime @default(now())
+  author     User?     @relation(fields: [Username_id], references: [id])
+}
+
+
+
+
+model Apply {
+  id              String   @id @default(cuid())
+  apply_type      String
+  apply_title     String
+  apply_task_code String
+  apply_job_code  String   // 存儲 apply_Task_of_job 中的 apply_job_code
+  apply_contect   String
+  apply_code      String
+  applicant_name  String
+  apply_job_id    String   // 存儲 apply_Task_of_job 中的 job_id
+  apply_user_id   String   // 對應到 user_id
+  apply_status    Boolean  @default(false)
+  apply_task_id   String   // 對應到 task_id
+  apply_task_job  String[] // 存儲 apply_Task_of_job 的 JSON 字串陣列
+  apply_question  Int?
+  apply_total_job_in_task Int?
+  user            User[]
+}
+
+
+model Task {
+  id           String         @id @default(cuid())
+  task_title   String
+  task_subject String
+  task_contect String
+  task_code    String
+  task_address String
+  task_area    String
+  task_price   Int
+  task_apply   Boolean
+  showprice    Boolean
+  School_name  String[]
+  completed    Boolean
+  task_admin_createdAt         DateTime       @default(now())
+  task_public  Boolean
+  teacher      String?
+  job          Job[]
+  user         User[]  @relation("UserTasks")
+}
+
+model Job {
+  id                          String         @id @default(cuid())
+  job_code                    String
+  job_place                   String
+  job_time_h                  String
+  job_time_start              String
+  job_time_end                String
+  job_title                   String
+  job_price                   Int
+  job_day                     String
+  job_contect                  String
+  authorname                  String?
+  job_admin_remake_authorname String
+  job_admin_content           String
+  job_admin_createdAt         DateTime       @default(now())
+  job_complete                Boolean
+  job_school_name             String
+  job_area                    String
+  showprice                   Boolean
+  job_apply                   Boolean
+  job_public                  Boolean    
+  job_task_id                 String?
+  job_in_task                 Boolean?
+  job_admin_remake_authorid   String
+  job_task_code               String
+  job_subject                 String
+  is_confirm                  Boolean
+  teacher                     String?
+  job_user_id                 String?
+  job_user                    User?           @relation(fields: [job_user_id], references: [id])
+  task                        Task?           @relation(fields: [job_task_id], references: [id])
+  salary_id                   String?
+  salary                      Salary?           @relation(fields: [salary_id], references: [id])
+}
+
+model Salary {
+  id           String @id @default(cuid())
+  name         String
+  username     String
+  salary       Int
+  phone        String
+  Salary_title String
+  job_day         String
+  start_time   String
+  fin_time     String
+  job_code     String
+  job_school   String
+  job_address String
+  SalaryRemake   SalaryRemake[]
+  add          Int
+  reduce       Int
+  total        Int
+  user         User[] @relation("UserSalary")
+  job          Job[]
+
+}
+
+model Color {
+  id String @id @default(cuid())
+  color_name String
+}
+
+
+model SalaryRemake {
+  id String @id @default(cuid())
+  remake String
+  SalaryRemakeId String
+  Salary       Salary @relation(fields: [SalaryRemakeId] , references: [id])
+}
+
+model SendWhatappsmessage {
+  id String @id @default(cuid())
+  message String
+  username String
+  phone String
+  date DateTime
+  isSend Boolean
+}
+
+enum UserRole {
+  ADMIN
+  TEACHER
+}
