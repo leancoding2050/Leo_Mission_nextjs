@@ -87,7 +87,7 @@ const Edit_SalaryRemake_Form = () => {
                 <FormItem>
                   <FormLabel>remake</FormLabel>
                   <FormControl>
-                    <Input placeholder={RemakeValue} {...field} />
+                    <Input placeholder={RemakeValue} {...field} disabled={isPending} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

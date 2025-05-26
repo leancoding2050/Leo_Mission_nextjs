@@ -16,8 +16,8 @@ import {
 } from "@/components/ui/form";
 import { Create_User_Schema } from "@/actions/Create-User/schema";
 import { SWR_Subject } from "../fatchdata/swr_subject";
-import { SWR_Areas } from "../fatchdata/swr_areas";
-import { SWR_Place } from "../fatchdata/swr_place";
+import { SWR_Areas_Select } from "../fatchdata/swr_areas";
+import { SWR_Place_Select } from "../fatchdata/swr_place";
 import DatePicker from "react-multi-date-picker";
 import { createUser } from "@/actions/Create-User";
 
@@ -204,7 +204,7 @@ const CreateUserForm = () => {
                 <FormItem>
                   <FormLabel>地區</FormLabel>
                   <FormControl>
-                    <SWR_Areas field={field} fieldState={fieldState} />
+                    <SWR_Areas_Select field={field} fieldState={fieldState} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -221,7 +221,7 @@ const CreateUserForm = () => {
                 <FormItem>
                   <FormLabel>地方</FormLabel>
                   <FormControl>
-                    <SWR_Place field={field} fieldState={fieldState} />
+                    <SWR_Place_Select field={field} fieldState={fieldState} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -270,26 +270,30 @@ const CreateUserForm = () => {
 
           {/* SCRC 日期選擇 */}
           <div className="grid grid-cols-2 gap-4">
-            <FormField
-              control={user_create_form.control}
-              name="SCRC"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>SCRC</FormLabel>
-                  <FormControl>
-                    <DatePicker
-                      value={field.value ? new Date(field.value) : null} // 將 ISO 字串轉為 Date 物件
-                      onChange={(date) => {
-                        const formattedDate = date ? new Date(date).toISOString() : "";
-                        field.onChange(formattedDate); // 更新表單值為 ISO 字串
-                      }}
-                      format="YYYY-MM-DD" // 顯示格式
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                                <FormField
+                    control={user_create_form.control}
+                    name="SCRC"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel> SCRC </FormLabel>
+                            <FormControl>
+                                <DatePicker
+                                    // 使用 `value` 而非 `selected`，並轉換為字符串格式
+                                    value={field.value ? new Date(field.value) : null}
+                                    onChange={(date) => {
+                                        if (date) {
+                                            // 將日期轉換為 ISO 字符串並更新表單
+                                            const dateObj = new Date(date.toString());
+                                            field.onChange(dateObj.toISOString());
+                                        }
+                                    }}
+                                    format="YYYY-MM-DD"  // 修正拼寫錯誤：`dateFormmat` → `format`
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
           </div>
 
           {/* 提交按鈕 */}

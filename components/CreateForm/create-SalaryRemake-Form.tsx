@@ -1,6 +1,6 @@
 "use client";
 import * as z from "zod";
-import { useEffect, useState, useTransition } from "react";
+import {  useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -59,7 +59,7 @@ const Create_SalaryRemake_Form = () => {
                 <FormItem>
                   <FormLabel>remake</FormLabel>
                   <FormControl>
-                    <Input placeholder="remake" {...field} />
+                    <Input placeholder="remake" {...field} disabled={isPending} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

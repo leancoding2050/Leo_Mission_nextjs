@@ -6,6 +6,16 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
+interface ApplyListsData{
+    id: string;
+    applicant_name: string;
+    apply_code: string;
+    apply_job_code: string;
+    apply_title: string;
+    apply_contect: string;
+    apply_status: boolean;
+}
+
 const ApplyListsByIdUser = () => {
     const param = useParams();
     
@@ -37,7 +47,7 @@ const ApplyListsByIdUser = () => {
         ApplyListsByIdUser
 
         <div>
-                {GetApplyDatabyId?.map((d:any)=>(
+                {GetApplyDatabyId?.map((d:ApplyListsData)=>(
                     <div key={d.id}>
                        申請人 :  {d.applicant_name}
                        <br />

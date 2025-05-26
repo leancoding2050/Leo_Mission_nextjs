@@ -135,7 +135,7 @@ import { UpdataConfirmJob } from "@/actions/UPDATA-Confirm-Job";
             <Link href={`/user/${userId}/profiles/jobprogressLists`}>上一頁</Link>
             <div>JobListById</div>
       
-            {GetJobdetailbyId?.map((d: any) => (
+            {GetJobdetailbyId?.map((d) => (
               <div key={d.id}>
                 <p>{d.job_code}</p>
                 <p>{d.job_place}</p>
@@ -172,3 +172,187 @@ import { UpdataConfirmJob } from "@/actions/UPDATA-Confirm-Job";
       };
       
       export default JobListById;
+
+// "use client";
+
+// import Link from "next/link";
+// import { useParams } from "next/navigation";
+// import { useEffect, useState, useCallback, useMemo } from "react";
+// import { format, subDays, isBefore, differenceInMilliseconds } from "date-fns"; // For date handling
+// import { savePreviousDayJobToSalary } from "@/actions/Auto-Create-Salary";
+// import { CreateSendWhatsAppLists } from "@/actions/Create-SendWhatsAppLists"; // Fixed typo
+// import { UpdateConfirmJob } from "@/actions/Update-Confirm-Job"; // Fixed naming
+// import { Button } from "@/components/ui/button"; // Assuming you have a UI library
+
+// interface Job {
+//   id: string;
+//   job_code: string;
+//   job_place: string;
+//   job_time_start: string;
+//   job_time_end: string;
+//   job_price: number;
+//   job_day: string;
+//   job_school_name: string;
+//   job_area: string;
+//   showprice: boolean;
+// }
+
+// interface User {
+//   id: string;
+//   username: string;
+//   job: Job[];
+// }
+
+// const JobListById = () => {
+//   const { id: userId } = useParams<{ id: string }>();
+//   const [userData, setUserData] = useState<User | null>(null);
+//   const [jobDetails, setJobDetails] = useState<Job[]>([]);
+//   const [error, setError] = useState<string | null>(null);
+//   const [showAlertButton, setShowAlertButton] = useState(false);
+
+//   // Fetch user data
+//   const fetchUserData = useCallback(async (id: string) => {
+//     try {
+//       const res = await fetch(`/api/User_Lists_by_ID/${id}`);
+//       if (!res.ok) throw new Error("Failed to fetch user data");
+//       const result = await res.json();
+//       setUserData(result[0] || null);
+//     } catch (err) {
+//       setError("Unable to load user data. Please try again later.");
+//       console.error(err);
+//     }
+//   }, []);
+
+//   // Fetch job details
+//   const fetchJobDetails = useCallback(async (jobId: string) => {
+//     try {
+//       const res = await fetch(`/api/Job_Lists_by_ID/${jobId}`);
+//       if (!res.ok) throw new Error("Failed to fetch job details");
+//       const result = await res.json();
+//       setJobDetails(result);
+//     } catch (err) {
+//       setError("Unable to load job details. Please try again later.");
+//       console.error(err);
+//     }
+//   }, []);
+
+//   // Load user data on mount
+//   useEffect(() => {
+//     if (userId) fetchUserData(userId);
+//   }, [userId, fetchUserData]);
+
+//   // Load job details when user data is available
+//   useEffect(() => {
+//     if (userData?.job?.[0]?.id) {
+//       fetchJobDetails(userData.job[0].id);
+//     }
+//   }, [userData, fetchJobDetails]);
+
+//   // Handle WhatsApp message and alert button logic
+//   useEffect(() => {
+//     if (!userData?.job?.[0]?.job_day) return;
+
+//     const jobDay = new Date(userData.job[0].job_day);
+//     const alertDate = subDays(jobDay, 1);
+//     alertDate.setHours(9, 0, 0, 0);
+
+//     const now = new Date();
+//     const timeToAlert = differenceInMilliseconds(alertDate, now);
+
+//     if (timeToAlert > 0) {
+//       const timeoutId = setTimeout(() => {
+//         CreateSendWhatsAppLists(userData.job[0].id)
+//           .then(() => console.log("WhatsApp message sent"))
+//           .catch((err) => console.error("Failed to send WhatsApp message:", err));
+//         setShowAlertButton(true);
+//       }, timeToAlert);
+
+//       return () => clearTimeout(timeoutId);
+//     } else {
+//       setShowAlertButton(true);
+//       const timeSinceAlert = differenceInMilliseconds(now, alertDate);
+//       if (timeSinceAlert > 24 * 60 * 60 * 1000) {
+//         setShowAlertButton(false);
+//       }
+//     }
+//   }, [userData]);
+
+//   // Schedule daily job save to Salary
+//   const scheduleDailyJobSave = useCallback((userId: string) => {
+//     const now = new Date();
+//     const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+//     const midnight = new Date(tomorrow.getFullYear(), tomorrow.getMonth(), tomorrow.getDate(), 0, 0, 0);
+//     const timeUntilMidnight = differenceInMilliseconds(midnight, now);
+
+//     const timeoutId = setTimeout(() => {
+//       savePreviousDayJobToSalary(userId)
+//         .then(() => console.log("Previous day's job saved to Salary"))
+//         .catch((err) => console.error("Failed to save job to Salary:", err));
+//     }, timeUntilMidnight); // Use 5000 for testing, timeUntilMidnight for production
+
+//     return () => clearTimeout(timeoutId);
+//   }, []);
+
+//   useEffect(() => {
+//     if (userId) {
+//       const cleanup = scheduleDailyJobSave(userId);
+//       return cleanup;
+//     }
+//   }, [userId, scheduleDailyJobSave]);
+
+//   // Handle job confirmation
+//   const handleConfirmJob = async (jobId: string) => {
+//     try {
+//       await UpdateConfirmJob(jobId);
+//       setShowAlertButton(false);
+//       alert("Job confirmed successfully!");
+//     } catch (err) {
+//       console.error("Failed to confirm job:", err);
+//       alert("Failed to confirm job. Please try again.");
+//     }
+//   };
+
+//   // Check if button should be disabled
+//   const isButtonDisabled = useMemo(() => {
+//     if (!userData?.job?.[0]?.job_day) return true;
+//     const jobDay = new Date(userData.job[0].job_day);
+//     const alertTime = subDays(jobDay, 1).setHours(9, 0, 0, 0);
+//     return isBefore(new Date(), new Date(alertTime));
+//   }, [userData]);
+
+//   if (error) return <div className="p-4 text-red-500">{error}</div>;
+//   if (!userData || !jobDetails.length) return <div className="p-4">Loading...</div>;
+
+//   return (
+//     <div className="p-4">
+//       <Link href={`/user/${userId}/profiles/jobprogressLists`} className="text-blue-500 hover:underline">
+//         上一頁
+//       </Link>
+//       <h1 className="text-2xl font-bold mb-4">Job Details</h1>
+
+//       {jobDetails.map((job) => (
+//         <div key={job.id} className="border p-4 rounded-md mb-4">
+//           <p><strong>Job Code:</strong> {job.job_code}</p>
+//           <p><strong>Place:</strong> {job.job_place}</p>
+//           <p><strong>Time:</strong> {job.job_time_start} - {job.job_time_end}</p>
+//           <p><strong>Price:</strong> {job.job_price}</p>
+//           {job.showprice && <p><strong>Day:</strong> {format(new Date(job.job_day), "yyyy-MM-dd")}</p>}
+//           <p><strong>School:</strong> {job.job_school_name}</p>
+//           <p><strong>Area:</strong> {job.job_area}</p>
+
+//           {showAlertButton && (
+//             <Button
+//               className={isButtonDisabled ? "bg-gray-300 text-gray-500" : "bg-red-500 text-white hover:bg-red-600"}
+//               disabled={isButtonDisabled}
+//               onClick={() => handleConfirmJob(job.id)}
+//             >
+//               {isButtonDisabled ? "已過期" : "確認工作"}
+//             </Button>
+//           )}
+//         </div>
+//       ))}
+//     </div>
+//   );
+// };
+
+// export default JobListById;

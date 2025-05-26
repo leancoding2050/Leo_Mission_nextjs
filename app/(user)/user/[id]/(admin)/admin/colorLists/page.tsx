@@ -3,6 +3,11 @@
 import Link from "next/link"
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
+
+interface ColorListsProps {
+    color_name: string;
+    id: string;
+  }
 const ColorLists = () => {
     const session = useSession() ;
     const UserId = session.data?.user?.id ;
@@ -33,7 +38,7 @@ const ColorLists = () => {
         </Link>
         <br />
 
-        {GetColor?.map((d: any) => {
+        {GetColor?.map((d:ColorListsProps) => {
   return (
     <div key={d.id} className="flex items-center gap-2 my-2">
       <div 

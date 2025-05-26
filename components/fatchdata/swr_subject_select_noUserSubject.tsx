@@ -13,9 +13,9 @@
 // import { z } from "zod";
 // import { Edit_Job_schema } from "@/actions/Edit-Job/schema"; // 導入 Edit_Job_schema
 
-// interface MissionArea {
-//   id: number;
-//   mission_area: string;
+// interface MissionSubject {
+//   id: number; // 改為 number，與其他組件一致（若 API 返回 string，則改回 string）
+//   mission_subject: string;
 // }
 
 // interface FieldStateCustom {
@@ -25,23 +25,28 @@
 //   error?: FieldError;
 // }
 
-// interface SWR_Areas_SelectProps {
-//   field: ControllerRenderProps<z.infer<typeof Edit_Job_schema>, "job_area">;
+// interface SWR_Subject_SelectProps {
+//   field: ControllerRenderProps<z.infer<typeof Edit_Job_schema>, "job_subject">;
 //   fieldState: FieldStateCustom;
 // }
 
-// const fetcher = (url: string): Promise<MissionArea[]> =>
-//   fetch(url).then((res) => res.json());
+// const fetcher = async (url: string): Promise<MissionSubject[]> => {
+//   const res = await fetch(url);
+//   return res.json();
+// };
 
-// export const SWR_Areas_Select = ({ field, fieldState }: SWR_Areas_SelectProps) => {
-//   const { data, error, isLoading } = useSWR<MissionArea[]>(
-//     "http://127.0.0.1:8000/api/mission/missionarea/",
+// export const SWR_Subject_Select_noUserSubject = ({
+//   field,
+//   fieldState,
+// }: SWR_Subject_SelectProps) => {
+//   const { data, error, isLoading } = useSWR<MissionSubject[]>(
+//     "http://127.0.0.1:8000/api/mission/missionsubject/",
 //     fetcher
 //   );
 
 //   if (error) return <div>錯誤：{error.message}</div>;
 //   if (isLoading) return <div>載入中...</div>;
-//   if (!data || !Array.isArray(data)) return <div>無可用區域</div>;
+//   if (!data || !Array.isArray(data)) return <div>無可用科目</div>;
 
 //   return (
 //     <div>
@@ -52,18 +57,18 @@
 //       >
 //         <SelectTrigger
 //           className={fieldState.invalid ? "border-red-500" : ""}
-//           aria-label="選擇地區"
+//           aria-label="選擇科目"
 //         >
-//           <SelectValue placeholder="選擇地區" />
+//           <SelectValue placeholder="選擇科目" />
 //         </SelectTrigger>
 //         <SelectContent>
 //           {data.map((datas) => (
 //             <SelectItem
 //               key={datas.id}
-//               value={datas.mission_area}
-//               aria-label={`選擇 ${datas.mission_area}`}
+//               value={datas.mission_subject}
+//               aria-label={`選擇 ${datas.mission_subject}`}
 //             >
-//               {datas.mission_area}
+//               {datas.mission_subject}
 //             </SelectItem>
 //           ))}
 //         </SelectContent>
@@ -72,6 +77,7 @@
 //     </div>
 //   );
 // };
+
 
 "use client";
 
@@ -86,9 +92,9 @@ import {
 import { ControllerRenderProps, FieldError, FieldValues, Path } from "react-hook-form";
 import { FormMessage } from "@/components/ui/form";
 
-interface MissionArea {
-  id: number;
-  mission_area: string;
+interface MissionSubject {
+  id: number; // 假設 API 返回 number，與其他組件一致
+  mission_subject: string;
 }
 
 interface FieldStateCustom {
@@ -98,27 +104,29 @@ interface FieldStateCustom {
   error?: FieldError;
 }
 
-interface SWR_Areas_SelectProps<T extends FieldValues, K extends Path<T>> {
+interface SWR_Subject_SelectProps<T extends FieldValues, K extends Path<T>> {
   field: ControllerRenderProps<T, K>;
   fieldState: FieldStateCustom;
 }
 
-const fetcher = (url: string): Promise<MissionArea[]> =>
-  fetch(url).then((res) => res.json());
+const fetcher = async (url: string): Promise<MissionSubject[]> => {
+  const res = await fetch(url);
+  return res.json();
+};
 
-export const SWR_Areas_Select = <T extends FieldValues, K extends Path<T>>({
+export const SWR_Subject_Select_noUserSubject = <T extends FieldValues, K extends Path<T>>({
   field,
   fieldState,
-}: SWR_Areas_SelectProps<T, K>) => {
-  const { data, error, isLoading } = useSWR<MissionArea[]>(
-    "http://127.0.0.1:8000/api/mission/missionarea/",
+}: SWR_Subject_SelectProps<T, K>) => {
+  const { data, error, isLoading } = useSWR<MissionSubject[]>(
+    "http://127.0.0.1:8000/api/mission/missionsubject/",
     fetcher
   );
 
   if (error) return <div>錯誤：{error.message}</div>;
   if (isLoading) return <div>載入中...</div>;
-  if (!data || !Array.isArray(data)) return <div>無可用區域</div>;
-  if (data.length === 0) return <div>目前無可用區域</div>;
+  if (!data || !Array.isArray(data)) return <div>無可用科目</div>;
+  if (data.length === 0) return <div>目前無可用科目</div>;
 
   return (
     <div>
@@ -129,18 +137,18 @@ export const SWR_Areas_Select = <T extends FieldValues, K extends Path<T>>({
       >
         <SelectTrigger
           className={fieldState.invalid ? "border-red-500" : ""}
-          aria-label="選擇地區"
+          aria-label="選擇科目"
         >
-          <SelectValue placeholder="選擇地區" />
+          <SelectValue placeholder="選擇科目" />
         </SelectTrigger>
         <SelectContent>
           {data.map((datas) => (
             <SelectItem
               key={datas.id}
-              value={datas.mission_area}
-              aria-label={`選擇 ${datas.mission_area}`}
+              value={datas.mission_subject}
+              aria-label={`選擇 ${datas.mission_subject}`}
             >
-              {datas.mission_area}
+              {datas.mission_subject}
             </SelectItem>
           ))}
         </SelectContent>

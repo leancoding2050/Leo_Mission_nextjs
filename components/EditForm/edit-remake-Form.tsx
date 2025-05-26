@@ -75,7 +75,7 @@ const EditRemakeForm = () => {
                         <FormItem>
                   <FormLabel>content</FormLabel>
                   <FormControl>
-                    <Input placeholder="content" {...field} />
+                    <Input placeholder="content" {...field} disabled={isPending} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -89,7 +89,7 @@ const EditRemakeForm = () => {
                         <FormItem>
                   <FormLabel>authorname</FormLabel>
                   <FormControl>
-                    <Input placeholder="authorname" {...field} />
+                    <Input placeholder="authorname" {...field} disabled={isPending} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

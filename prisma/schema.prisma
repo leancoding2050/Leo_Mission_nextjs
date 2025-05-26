@@ -9,7 +9,7 @@ datasource db {
 
 model User {
   id           String         @id @default(cuid())
-  email        String         @unique // 確保 email 是唯一的
+  email        String         @unique
   nickname     String
   username     String         @unique
   password     String
@@ -26,11 +26,27 @@ model User {
   Apply        Apply[]
   job          Job[]
   remakes      Remake[]
-  task         Task[] @relation("UserTasks")
-  image         Image[]
-  salary        Salary[] @relation("UserSalary")
-  passwordResetTokens PasswordResetToken[] // 新增關聯
+  task         Task[]         @relation("UserTasks")
+  image        Image[]
+  salary       Salary[]       @relation("UserSalary")
+  passwordResetTokens PasswordResetToken[]
+  accounts     Account[]      // 新增關聯
+}
 
+model Account {
+  id                String   @id @default(cuid())
+  userId            String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([provider, providerAccountId])
 }
 
 model PasswordResetToken {
@@ -39,17 +55,16 @@ model PasswordResetToken {
   email     String
   user      User     @relation(fields: [email], references: [email])
   createdAt DateTime @default(now())
-  expiresAt DateTime // 設置過期時間
+  expiresAt DateTime
 }
 
 model Image {
-  id      String  @id @default(cuid())
-  path    String
-  user    User    @relation(fields: [image_user_id], references: [id])
+  id            String  @id @default(cuid())
+  path          String
+  user          User    @relation(fields: [image_user_id], references: [id])
   image_user_id String
-  image   String
+  image         String
 }
-
 
 model Remake {
   id         String   @id @default(cuid())
@@ -57,31 +72,27 @@ model Remake {
   authorname String?
   Username_id String?
   createAt   DateTime @default(now())
-  author     User?     @relation(fields: [Username_id], references: [id])
+  author     User?    @relation(fields: [Username_id], references: [id])
 }
-
-
-
 
 model Apply {
   id              String   @id @default(cuid())
   apply_type      String
   apply_title     String
   apply_task_code String
-  apply_job_code  String   // 存儲 apply_Task_of_job 中的 apply_job_code
+  apply_job_code  String
   apply_contect   String
   apply_code      String
   applicant_name  String
-  apply_job_id    String   // 存儲 apply_Task_of_job 中的 job_id
-  apply_user_id   String   // 對應到 user_id
+  apply_job_id    String
+  apply_user_id   String
   apply_status    Boolean  @default(false)
-  apply_task_id   String   // 對應到 task_id
-  apply_task_job  String[] // 存儲 apply_Task_of_job 的 JSON 字串陣列
+  apply_task_id   String
+  apply_task_job  String[]
   apply_question  Int?
   apply_total_job_in_task Int?
   user            User[]
 }
-
 
 model Task {
   id           String         @id @default(cuid())
@@ -96,11 +107,11 @@ model Task {
   showprice    Boolean
   School_name  String[]
   completed    Boolean
-  task_admin_createdAt         DateTime       @default(now())
+  task_admin_createdAt DateTime @default(now())
   task_public  Boolean
   teacher      String?
   job          Job[]
-  user         User[]  @relation("UserTasks")
+  user         User[]         @relation("UserTasks")
 }
 
 model Job {
@@ -113,7 +124,7 @@ model Job {
   job_title                   String
   job_price                   Int
   job_day                     String
-  job_contect                  String
+  job_contect                 String
   authorname                  String?
   job_admin_remake_authorname String
   job_admin_content           String
@@ -123,7 +134,7 @@ model Job {
   job_area                    String
   showprice                   Boolean
   job_apply                   Boolean
-  job_public                  Boolean    
+  job_public                  Boolean
   job_task_id                 String?
   job_in_task                 Boolean?
   job_admin_remake_authorid   String
@@ -132,54 +143,52 @@ model Job {
   is_confirm                  Boolean
   teacher                     String?
   job_user_id                 String?
-  job_user                    User?           @relation(fields: [job_user_id], references: [id])
-  task                        Task?           @relation(fields: [job_task_id], references: [id])
+  job_user                    User?          @relation(fields: [job_user_id], references: [id])
+  task                        Task?          @relation(fields: [job_task_id], references: [id])
   salary_id                   String?
-  salary                      Salary?           @relation(fields: [salary_id], references: [id])
+  salary                      Salary?        @relation(fields: [salary_id], references: [id])
 }
 
 model Salary {
-  id           String @id @default(cuid())
+  id           String         @id @default(cuid())
   name         String
   username     String
   salary       Int
   phone        String
   Salary_title String
-  job_day         String
+  job_day      String
   start_time   String
   fin_time     String
   job_code     String
   job_school   String
-  job_address String
-  SalaryRemake   SalaryRemake[]
+  job_address  String
+  SalaryRemake SalaryRemake[]
   add          Int
   reduce       Int
   total        Int
-  user         User[] @relation("UserSalary")
+  user         User[]         @relation("UserSalary")
   job          Job[]
-
 }
 
 model Color {
-  id String @id @default(cuid())
+  id         String @id @default(cuid())
   color_name String
 }
 
-
 model SalaryRemake {
-  id String @id @default(cuid())
-  remake String
+  id             String @id @default(cuid())
+  remake         String
   SalaryRemakeId String
-  Salary       Salary @relation(fields: [SalaryRemakeId] , references: [id])
+  Salary         Salary @relation(fields: [SalaryRemakeId], references: [id])
 }
 
 model SendWhatappsmessage {
-  id String @id @default(cuid())
-  message String
+  id       String   @id @default(cuid())
+  message  String
   username String
-  phone String
-  date DateTime
-  isSend Boolean
+  phone    String
+  date     DateTime
+  isSend   Boolean
 }
 
 enum UserRole {
