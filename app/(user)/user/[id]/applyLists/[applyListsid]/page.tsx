@@ -1,10 +1,14 @@
 "use client";
 
+
+import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useEffect, useState, useTransition } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import { useEffect, useState, 
+    // useTransition 
+} from "react";
+// import { useForm } from "react-hook-form";
+// import { zodResolver } from "@hookform/resolvers/zod";
+// import * as z from "zod";
 
 interface ApplyListsData{
     id: string;
@@ -45,7 +49,11 @@ const ApplyListsByIdUser = () => {
     return(
         <>
         ApplyListsByIdUser
-
+            <br />
+        <Link href={`/user/${UserId}/applyLists/`}>
+            返回申請列表
+        </Link>
+            <br />
         <div>
                 {GetApplyDatabyId?.map((d:ApplyListsData)=>(
                     <div key={d.id}>

@@ -144,15 +144,15 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
-// 定義 Task 和 Job 類型，根據 Prisma 模型
+// 定義 Job 和 Task 類型，根據 Prisma 模型
 interface Job {
   id: string;
   job_code: string;
   job_place: string;
-  job_time_h: string; // 修正：使用 job_time_h
+  job_time_h: string;
   job_price: number;
   job_day: string;
-  job_complete: boolean; // 修正：使用 job_complete
+  job_complete: boolean;
   job_school_name: string;
   job_area: string;
   task_code: string;
@@ -178,8 +178,8 @@ const TaskDetailById = () => {
   const userId = params?.id as string | undefined;
   const taskId = params?.taskListsid as string | undefined;
 
-  // 狀態類型設為 Task | null，因為 API 返回單個 Task
-  const [getTaskDetailById, setGetTaskDetailById] = useState<Task | null>(null);
+  // 狀態類型設為 Task[]，因為 API 返回陣列
+  const [getTaskDetailById, setGetTaskDetailById] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -190,7 +190,7 @@ const TaskDetailById = () => {
         if (!res.ok) {
           throw new Error(`請求失敗: ${res.status}`);
         }
-        const data: Task = await res.json();
+        const data: Task[] = await res.json(); // 預期回傳 Task 陣列
         setGetTaskDetailById(data);
         setError("");
       } catch (err: unknown) {
@@ -210,7 +210,11 @@ const TaskDetailById = () => {
 
   if (isLoading) return <div className="p-4 text-gray-500">正在加載...</div>;
   if (error) return <div className="p-4 text-red-500">錯誤: {error}</div>;
-  if (!getTaskDetailById) return <div className="p-4 text-gray-500">無任務數據</div>;
+  if (!getTaskDetailById || getTaskDetailById.length === 0)
+    return <div className="p-4 text-gray-500">無任務數據</div>;
+
+  // 提取第一個 Task 物件
+  const task = getTaskDetailById[0];
 
   return (
     <div className="p-4">
@@ -219,7 +223,7 @@ const TaskDetailById = () => {
       </Link>
       <br />
       <Link
-        href={`/user/${userId}/admin/taskLists/${getTaskDetailById.id}/edit`}
+        href={`/user/${userId}/admin/taskLists/${task.id}/edit`}
         className="text-blue-500 hover:underline"
       >
         更改
@@ -227,23 +231,23 @@ const TaskDetailById = () => {
       <div className="mt-4">
         <h1 className="text-xl font-bold">任務詳情</h1>
         <div className="mt-2">
-          <p>任務標題: {getTaskDetailById.task_title}</p>
-          <p>任務主題: {getTaskDetailById.task_subject}</p>
-          <p>任務編號: {getTaskDetailById.task_code}</p>
-          <p>任務地區: {getTaskDetailById.task_area}</p>
-          <p>學校名稱: {getTaskDetailById.School_name.join(", ")}</p>
-          <p>價格: {getTaskDetailById.task_price}</p>
-          <p>是否完成: {getTaskDetailById.completed ? "完成" : "未完成"}</p>
-          <p>是否公開: {getTaskDetailById.task_public ? "公開" : "不公開"}</p>
-          <p>是否公開價格: {getTaskDetailById.showprice ? "公開" : "不公開"}</p>
-          <p>工作數量: {getTaskDetailById.job.length}</p>
-          <p>老師: {getTaskDetailById.teacher ?? "無"}</p>
+          <p>任務標題: {task.task_title}</p>
+          <p>任務主題: {task.task_subject}</p>
+          <p>任務編號: {task.task_code}</p>
+          <p>任務地區: {task.task_area}</p>
+          <p>學校名稱: {task.School_name?.join(", ")}</p>
+          <p>價格: {task.task_price}</p>
+          <p>是否完成: {task.completed ? "完成" : "未完成"}</p>
+          <p>是否公開: {task.task_public ? "公開" : "不公開"}</p>
+          <p>是否公開價格: {task.showprice ? "公開" : "不公開"}</p>
+          <p>工作數量: {task.job?.length}</p>
+          <p>老師: {task.teacher ?? "無"}</p>
         </div>
 
         <h2 className="text-lg font-semibold mt-4">相關工作</h2>
-        {getTaskDetailById.job.length > 0 ? (
+        {task.job?.length > 0 ? (
           <div className="space-y-4 mt-2">
-            {getTaskDetailById.job.map((j) => (
+            {task.job.map((j) => (
               <div key={j.id} className="p-4 border rounded-lg shadow-sm">
                 <p>工作編號: {j.job_code}</p>
                 <p>工作地點: {j.job_place}</p>

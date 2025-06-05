@@ -211,7 +211,7 @@ const UserListById = () => {
 
       <div className="mt-4">
         <h2 className="text-lg font-semibold">評論/備註</h2>
-        {getUserData.remakes.length > 0 ? (
+        {getUserData.remakes?.length > 0 ? (
           getUserData.remakes.map((remake) => (
             <div key={remake.id} className="p-4 border rounded-lg shadow-sm mt-2">
               <p>內容: {remake.content}</p>

@@ -152,15 +152,10 @@
 "use client";
 
 import useSWR from "swr";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { ControllerRenderProps, FieldError, FieldValues, Path } from "react-hook-form";
-import { FormMessage } from "@/components/ui/form";
+import { FormMessage, FormLabel } from "@/components/ui/form";
+import { Label } from "@/components/ui/label";
 
 interface MissionPlace {
   id: number;
@@ -184,7 +179,7 @@ const fetcher = async (url: string): Promise<MissionPlace[]> => {
   return res.json();
 };
 
-export const SWR_Place_Select = <T extends FieldValues, K extends Path<T>>({
+export const SWR_Place_CheckBox = <T extends FieldValues, K extends Path<T>>({
   field,
   fieldState,
 }: SWR_Place_SelectProps<T, K>) => {
@@ -199,34 +194,25 @@ export const SWR_Place_Select = <T extends FieldValues, K extends Path<T>>({
   if (data.length === 0) return <div>目前無可用地點</div>;
 
   return (
-    <div>
-      <Select
-        onValueChange={(value) => {
-          // 確保 value 是陣列
-          const newValue = Array.isArray(value) ? value : [value];
-          field.onChange(newValue);
-        }}
-        value={field.value || []} // 確保值是陣列
-        multiple // 啟用多選（根據 shadcn/ui 的實現，可能需要自訂）
-      >
-        <SelectTrigger
-          className={fieldState.invalid ? "border-red-500" : ""}
-          aria-label="選擇地點"
-        >
-          <SelectValue placeholder="選擇地點" />
-        </SelectTrigger>
-        <SelectContent>
-          {data.map((datas) => (
-            <SelectItem
-              key={datas.id}
-              value={datas.mission_place}
-              aria-label={`選擇 ${datas.mission_place}`}
-            >
-              {datas.mission_place}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+    <div className="space-y-2">
+      <FormLabel>地點</FormLabel>
+      {data.map((datas) => (
+        <div key={datas.id} className="flex items-center space-x-2">
+          <Checkbox
+            id={`place-${datas.id}`}
+            checked={(field.value as string[])?.includes(datas.mission_place) || false}
+            onCheckedChange={(checked) => {
+              const currentValue = (field.value as string[]) || [];
+              const newValue = checked
+                ? [...currentValue, datas.mission_place]
+                : currentValue.filter((val: string) => val !== datas.mission_place);
+              field.onChange(newValue);
+            }}
+            disabled={field.disabled}
+          />
+          <Label htmlFor={`place-${datas.id}`}>{datas.mission_place}</Label>
+        </div>
+      ))}
       {fieldState.error && <FormMessage>{fieldState.error.message}</FormMessage>}
     </div>
   );

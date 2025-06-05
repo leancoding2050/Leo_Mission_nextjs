@@ -21,22 +21,42 @@
 // })
 
 
+// import { z } from "zod";
+
+// // 示例修正后的 schema 片段
+// export const Create_User_Schema = z.object({
+//     email: z.string().email(),
+//     nickname: z.string(),
+//     username: z.string(),
+//     password: z.string(),
+//     role: z.enum(["ADMIN", "TEACHER"]),
+//     image: z.string().url().optional(), // 修改为接受 URL
+//     area: z.array(z.string()).optional(),
+//     place: z.array(z.string()).optional(),
+//     subject: z.array(z.string()).optional(),
+//     phone: z.string().min(1, { message: "電話不能為空" }), // 改為必填
+//     SCRC: z.string().min(1, { message: "SCRC 不能為空" }), // 改為必填
+//     isLogin: z.boolean({ required_error: "isLogin 必須提供" }), // 改為必填
+//   isstaff: z.boolean({ required_error: "isstaff 必須提供" }), // 改為必填
+//   isadmin: z.boolean({ required_error: "isadmin 必須提供" }), // 改為必填
+//   });
+
+
 import { z } from "zod";
 
-// 示例修正后的 schema 片段
 export const Create_User_Schema = z.object({
-    email: z.string().email(),
-    nickname: z.string(),
-    username: z.string(),
-    password: z.string(),
-    role: z.enum(["ADMIN", "TEACHER"]),
-    image: z.string(),
-    area: z.array(z.string()),
-    place: z.array(z.string()),
-    subject: z.array(z.string()),
-    phone: z.string(),
-    SCRC: z.string(),
-    isLogin: z.boolean(),     // 必须明确 boolean 类型，不能是 optional
-    isstaff: z.boolean(),     // 改为 .boolean() 而非 .optional()
-    isadmin: z.boolean(),     // 改为 .boolean() 而非 .optional()
-  });
+  email: z.string().email(),
+  nickname: z.string(),
+  username: z.string(),
+  password: z.string(),
+  role: z.enum(["ADMIN", "TEACHER"]),
+  image: z.string().url().optional().or(z.literal("")), // 允許空字符串
+  area: z.array(z.string()).optional(),
+  place: z.array(z.string()).optional(),
+  subject: z.array(z.string()).optional(),
+  phone: z.string().min(1, { message: "電話不能為空" }),
+  SCRC: z.string().min(1, { message: "SCRC 不能為空" }),
+  isLogin: z.boolean({ required_error: "isLogin 必須提供" }),
+  isstaff: z.boolean({ required_error: "isstaff 必須提供" }),
+  isadmin: z.boolean({ required_error: "isadmin 必須提供" }),
+});

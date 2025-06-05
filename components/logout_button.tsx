@@ -13,7 +13,7 @@ export const Logout_Button = () =>{
     return (
         <>
             <Button onClick={onClick} >
-                LogOut
+                登出
             </Button>
         </>
     )

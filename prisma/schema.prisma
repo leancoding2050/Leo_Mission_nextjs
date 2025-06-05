@@ -23,16 +23,16 @@ model User {
   place        String[]
   subject      String[]
   color        String
+  image        String?        // 新增字段存儲 OSS URL
   Apply        Apply[]
   job          Job[]
   remakes      Remake[]
   task         Task[]         @relation("UserTasks")
-  image        Image[]
+  image_rel    Image[]        // 保留原關聯
   salary       Salary[]       @relation("UserSalary")
   passwordResetTokens PasswordResetToken[]
-  accounts     Account[]      // 新增關聯
+  accounts     Account[]
 }
-
 model Account {
   id                String   @id @default(cuid())
   userId            String

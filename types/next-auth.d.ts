@@ -65,21 +65,50 @@
 
 
 
-import { UserRole } from "@prisma/client";
-import { AdapterUser } from "@auth/core/adapters";
+// import { UserRole } from "@prisma/client";
+// import { AdapterUser } from "@auth/core/adapters";
 
-declare module "@auth/core/types" {
-  interface AdapterUser extends AdapterUser {
-    role: UserRole;
-    username?: string;
-    isAdmin?: boolean;
-    isStaff?: boolean;
-  }
-}
+// declare module "@auth/core/types" {
+//   interface AdapterUser extends AdapterUser {
+//     role: UserRole;
+//     username?: string;
+//     isAdmin?: boolean;
+//     isStaff?: boolean;
+//   }
+// }
+
+// declare module "next-auth" {
+//   interface User {
+//     id: string;
+//     username?: string;
+//     role: UserRole;
+//     isAdmin?: boolean;
+//     isStaff?: boolean;
+//     name?: string | null;
+//   }
+
+//   interface Session {
+//     user: User;
+//   }
+// }
+
+// declare module "next-auth/jwt" {
+//   interface JWT {
+//     id?: string;
+//     username?: string;
+//     role?: UserRole;
+//     isAdmin?: boolean;
+//     isStaff?: boolean;
+//     userId?: string;
+//   }
+// }
+
+import { UserRole } from "@prisma/client";
 
 declare module "next-auth" {
   interface User {
     id: string;
+    email: string;
     username?: string;
     role: UserRole;
     isAdmin?: boolean;
@@ -99,6 +128,5 @@ declare module "next-auth/jwt" {
     role?: UserRole;
     isAdmin?: boolean;
     isStaff?: boolean;
-    userId?: string;
   }
 }

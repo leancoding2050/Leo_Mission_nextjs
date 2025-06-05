@@ -126,6 +126,80 @@
 
 
 
+// import bcrypt from "bcryptjs";
+// import Credentials from "next-auth/providers/credentials";
+// import type { NextAuthConfig } from "next-auth";
+// import { Teacher_Login_Schema } from "./actions/Login-Teacher/schema";
+// import { Admin_Login_Schema } from "./actions/Login-Admin/schema";
+// import { getUserByUserName } from "./app/api/user/route";
+// import { UserRole } from "@prisma/client";
+
+// export default {
+//   providers: [
+//     Credentials({
+//       async authorize(credentials) {
+//         let validatedFields;
+
+//         if (credentials.role === "ADMIN") {
+//           validatedFields = Admin_Login_Schema.safeParse(credentials);
+//         } else {
+//           validatedFields = Teacher_Login_Schema.safeParse(credentials);
+//         }
+
+//         if (!validatedFields.success) {
+//           console.error("表單驗證失敗:", validatedFields.error);
+//           throw new Error("無效的輸入數據");
+//         }
+
+//         const { username, password } = validatedFields.data;
+
+//         const user = await getUserByUserName(username);
+//         if (!user || !user.password) {
+//           console.error("用戶不存在或無密碼");
+//           throw new Error("用戶名或密碼錯誤");
+//         }
+
+//         const passwordsMatch = await bcrypt.compare(password, user.password);
+//         if (!passwordsMatch) {
+//           console.error("密碼不匹配");
+//           throw new Error("用戶名或密碼錯誤");
+//         }
+
+//         if (credentials.role && user.role !== credentials.role) {
+//           console.error(`用戶角色不匹配: 期望 ${credentials.role}, 實際 ${user.role}`);
+//           throw new Error("無權訪問此角色");
+//         }
+
+//         // return {
+//         //   id: user.id,
+//         //   email: user.email,
+//         //   emailVerified: null,
+//         //   name: user.username,
+//         //   role: user.role,
+//         //   username: user.username,
+//         //   isAdmin: user.isAdmin,
+//         //   isStaff: user.isStaff,
+//         // };
+//         return {
+//           id: user.id,
+//           email: user.email,
+//           name: user.username,
+//           username: user.username,
+//           role: user.role as UserRole,
+//           isAdmin: user.isAdmin ?? false,
+//           isStaff: user.isStaff ?? false,
+//         };
+
+//       },
+//     }),
+//   ],
+// } satisfies NextAuthConfig;
+
+
+
+
+
+
 import bcrypt from "bcryptjs";
 import Credentials from "next-auth/providers/credentials";
 import type { NextAuthConfig } from "next-auth";
@@ -172,15 +246,17 @@ export default {
 
         return {
           id: user.id,
-          email: user.email,
-          emailVerified: null,
-          name: user.username,
-          role: user.role,
-          username: user.username,
-          isAdmin: user.isAdmin,
-          isStaff: user.isStaff,
+          email: user.email ?? '',
+          name: user.username ?? '',
+          username: user.username ?? '',
+          role: user.role as UserRole,
+          isAdmin: user.isAdmin ?? false,
+          isStaff: user.isStaff ?? false,
         };
       },
     }),
   ],
+  pages: {
+    signIn: '/auth/signin',
+  },
 } satisfies NextAuthConfig;

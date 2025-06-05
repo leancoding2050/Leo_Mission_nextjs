@@ -62,6 +62,120 @@
 // export default AdminPage
 
 
+// "use client";
+
+// import ShowCalendar_Admin from "@/components/calendar/ShowCalendar_Admin";
+// import { useSession } from "next-auth/react";
+// import Link from "next/link";
+// import { useEffect, useState } from "react";
+
+// interface Job {
+//   id: string;
+//   job_code: string;
+//   job_place: string;
+//   job_time_h: string;
+//   job_time_start: string;
+//   job_time_end: string;
+//   job_price: number;
+//   job_day: string;
+//   job_complete: boolean;
+//   job_school_name: string;
+//   job_area: string;
+//   task_code: string;
+//   is_confirm: boolean;
+//   job_title: string;
+//   job_subject: string;
+// }
+
+// interface User {
+//   id: string;
+//   email: string;
+//   nickname: string;
+//   username: string;
+//   role: "ADMIN" | "TEACHER";
+//   isAdmin: boolean;
+//   job: Job[];
+// }
+
+// const AdminPage = () => {
+//   const session = useSession();
+//   const userId = session.data?.user?.id as string | undefined;
+
+//   const [getUserData, setGetUserData] = useState<User | null>(null);
+//   const [isLoading, setIsLoading] = useState(true);
+//   const [error, setError] = useState("");
+
+//   useEffect(() => {
+//     const fetchUserData = async (id: string) => {
+//       try {
+//         const res = await fetch(`/api/User_Lists_by_ID/${id}`);
+//         if (!res.ok) throw new Error(`請求失敗: ${res.status}`);
+//         const data: User[] = await res.json();
+//         console.log("API 返回的數據:", JSON.stringify(data, null, 2));
+//         if (!data || data.length === 0) throw new Error("無用戶數據");
+//         const user = data[0];
+//         console.log("用戶數據:", JSON.stringify(user, null, 2));
+//         console.log("工作數據:", JSON.stringify(user.job, null, 2));
+//         if (!user.isAdmin) throw new Error("無管理員權限");
+//         setGetUserData(user);
+//         setError("");
+//       } catch (err: unknown) {
+//         setError(err instanceof Error ? err.message : "未知錯誤");
+//       } finally {
+//         setIsLoading(false);
+//       }
+//     };
+
+//     if (userId) {
+//       fetchUserData(userId);
+//     } else {
+//       setError("未登錄或無效的用戶 ID");
+//       setIsLoading(false);
+//     }
+//   }, [userId]);
+
+//   const events = getUserData?.job || [];
+
+//   if (isLoading) return <div className="p-4 text-gray-500">正在加載...</div>;
+//   if (error) return <div className="p-4 text-red-500">錯誤: {error}</div>;
+//   if (!getUserData) return <div className="p-4 text-gray-500">無用戶數據</div>;
+
+//   return (
+//     <div className="p-4">
+//       <h1 className="text-xl font-bold mb-4">管理員頁面</h1>
+//       <div className="space-y-2">
+//         <Link href={`/user/${userId}/`} className="block text-blue-500 hover:underline">
+//           返回普通用戶頁面
+//         </Link>
+//         <Link href={`/user/${userId}/admin/userLists`} className="block text-blue-500 hover:underline">
+//           用戶列表
+//         </Link>
+//         <Link href={`/user/${userId}/admin/taskLists`} className="block text-blue-500 hover:underline">
+//           任務列表
+//         </Link>
+//         <Link href={`/user/${userId}/admin/jobLists`} className="block text-blue-500 hover:underline">
+//           工作列表
+//         </Link>
+//         <Link href={`/user/${userId}/admin/applyLists`} className="block text-blue-500 hover:underline">
+//           申請列表
+//         </Link>
+//         <Link href={`/user/${userId}/admin/colorLists`} className="block text-blue-500 hover:underline">
+//           顏色列表
+//         </Link>
+//         <Link href={`/user/${userId}/admin/sendwhatsappLists`} className="block text-blue-500 hover:underline">
+//           WhatsApp 訊息列表
+//         </Link>
+//       </div>
+//       <div className="mt-4">
+//         <ShowCalendar_Admin events={events} />
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default AdminPage;
+
+
 "use client";
 
 import ShowCalendar_Admin from "@/components/calendar/ShowCalendar_Admin";
@@ -69,23 +183,24 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-// 定義 Job 類型，根據 Prisma 模型
 interface Job {
   id: string;
   job_code: string;
   job_place: string;
   job_time_h: string;
+  job_time_start: string;
+  job_time_end: string;
   job_price: number;
   job_day: string;
   job_complete: boolean;
   job_school_name: string;
   job_area: string;
   task_code: string;
-  is_confirm: boolean; // 添加以匹配 JobEvent
-  job_title?: string; // 可選字段，根據需要設置
+  is_confirm: boolean;
+  job_title: string;
+  job_subject: string;
 }
 
-// 定義 User 類型
 interface User {
   id: string;
   email: string;
@@ -96,16 +211,7 @@ interface User {
   job: Job[];
 }
 
-// 定義 JobEvent 類型，與 ShowCalendar_Admin 一致
-interface JobEvent {
-  job_day: string;
-  job_time_start: string;
-  job_time_end: string;
-  job_title: string;
-  is_confirm: boolean;
-}
-
-const AdminPage = () => {
+export default function AdminPage() {
   const session = useSession();
   const userId = session.data?.user?.id as string | undefined;
 
@@ -118,9 +224,11 @@ const AdminPage = () => {
       try {
         const res = await fetch(`/api/User_Lists_by_ID/${id}`);
         if (!res.ok) throw new Error(`請求失敗: ${res.status}`);
-        const data: User = await res.json();
-        if (!data.isAdmin) throw new Error("無管理員權限");
-        setGetUserData(data);
+        const data: User[] = await res.json();
+        if (!data || data.length === 0) throw new Error("無用戶數據");
+        const user = data[0];
+        if (!user.isAdmin) throw new Error("無管理員權限");
+        setGetUserData(user);
         setError("");
       } catch (err: unknown) {
         setError(err instanceof Error ? err.message : "未知錯誤");
@@ -137,51 +245,73 @@ const AdminPage = () => {
     }
   }, [userId]);
 
-  // 將 Job[] 轉換為 JobEvent[]
-  const events: JobEvent[] = getUserData?.job.map((job) => ({
-    job_day: job.job_day,
-    job_time_start: job.job_time_h.split("-")[0] || "09:00", // 假設 job_time_h 是 "09:00-17:00"
-    job_time_end: job.job_time_h.split("-")[1] || "17:00",
-    job_title: job.job_title || job.job_code, // 使用 job_code 作為回退
-    is_confirm: job.is_confirm ?? false,
-  })) ?? [];
+  const events = getUserData?.job || [];
 
-  if (isLoading) return <div className="p-4 text-gray-500">正在加載...</div>;
-  if (error) return <div className="p-4 text-red-500">錯誤: {error}</div>;
-  if (!getUserData) return <div className="p-4 text-gray-500">無用戶數據</div>;
+  if (isLoading)
+    return (
+      <div className="ml-[50px] p-4 text-[#1D475D] font-noto-sans-tc">正在加載...</div>
+    );
+  if (error)
+    return (
+      <div className="ml-[50px] p-4 text-[#FF0000] font-noto-sans-tc">錯誤: {error}</div>
+    );
+  if (!getUserData)
+    return (
+      <div className="ml-[50px] p-4 text-[#1D475D] font-noto-sans-tc">無用戶數據</div>
+    );
 
   return (
-    <div className="p-4">
-      <h1 className="text-xl font-bold mb-4">管理員頁面</h1>
-      <div className="space-y-2">
-        <Link href={`/user/${userId}/admin/userLists`} className="block text-blue-500 hover:underline">
-          用戶列表
-        </Link>
-        <Link href={`/user/${userId}/admin/taskLists`} className="block text-blue-500 hover:underline">
-          任務列表
-        </Link>
-        <Link href={`/user/${userId}/admin/jobLists`} className="block text-blue-500 hover:underline">
-          工作列表
-        </Link>
-        <Link href={`/user/${userId}/admin/applyLists`} className="block text-blue-500 hover:underline">
-          申請列表
-        </Link>
-        <Link href={`/user/${userId}/admin/colorLists`} className="block text-blue-500 hover:underline">
-          顏色列表
-        </Link>
-        <Link href={`/user/${userId}/admin/AllJobLists`} className="block text-blue-500 hover:underline">
-          所有工作列表
-        </Link>
-        <Link href={`/user/${userId}/admin/sendwhatsappLists`} className="block text-blue-500 hover:underline">
-          WhatsApp 訊息列表
-        </Link>
-      </div>
-
-      <div className="mt-4">
-        <ShowCalendar_Admin events={events} />
+    <div className="min-h-screen bg-gradient-to-r from-[#d7e1e9] to-[#d7e1e9] bg-opacity-60 font-noto-sans-tc">
+      <div className="ml-[50px] p-4">
+        <h1 className="text-2xl font-bold text-[#1D475D] mb-4">管理員頁面</h1>
+        <div className="space-y-2">
+          <Link
+            href={`/user/${userId}/`}
+            className="block text-[#0071AC] hover:text-black transition-all duration-300"
+          >
+            返回普通用戶頁面
+          </Link>
+          <Link
+            href={`/user/${userId}/admin/userLists`}
+            className="block text-[#0071AC] hover:text-black transition-all duration-300"
+          >
+            用戶列表
+          </Link>
+          <Link
+            href={`/user/${userId}/admin/taskLists`}
+            className="block text-[#0071AC] hover:text-black transition-all duration-300"
+          >
+            任務列表
+          </Link>
+          <Link
+            href={`/user/${userId}/admin/jobLists`}
+            className="block text-[#0071AC] hover:text-black transition-all duration-300"
+          >
+            工作列表
+          </Link>
+          <Link
+            href={`/user/${userId}/admin/applyLists`}
+            className="block text-[#0071AC] hover:text-black transition-all duration-300"
+          >
+            申請列表
+          </Link>
+          <Link
+            href={`/user/${userId}/admin/colorLists`}
+            className="block text-[#0071AC] hover:text-black transition-all duration-300"
+          >
+            顏色列表
+          </Link>
+          <Link
+            href={`/user/${userId}/admin/sendwhatsappLists`}
+            className="block text-[#0071AC] hover:text-black transition-all duration-300"
+          >
+            WhatsApp 訊息列表
+          </Link>
+        </div>
+        <div className="mt-4">
+          <ShowCalendar_Admin events={events} />
+        </div>
       </div>
     </div>
   );
-};
-
-export default AdminPage;
+}

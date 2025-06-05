@@ -10,11 +10,10 @@ const CreateUser = () => {
     const userId = param.id as string;
     
     return (
-        <div>
+        <div className="ml-[50px]">
             <Link href={`/user/${userId}/admin/userLists/`}>
             上一頁
             </Link>
-            CreateUser
 
             <CreateUserForm />
         </div>

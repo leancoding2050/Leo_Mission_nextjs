@@ -145,15 +145,10 @@
 "use client";
 
 import useSWR from "swr";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { ControllerRenderProps, FieldError, FieldValues, Path } from "react-hook-form";
-import { FormMessage } from "@/components/ui/form";
+import { FormMessage, FormLabel } from "@/components/ui/form";
+import { Label } from "@/components/ui/label";
 
 interface MissionArea {
   id: number;
@@ -175,7 +170,7 @@ interface SWR_Areas_SelectProps<T extends FieldValues, K extends Path<T>> {
 const fetcher = (url: string): Promise<MissionArea[]> =>
   fetch(url).then((res) => res.json());
 
-export const SWR_Areas_Select = <T extends FieldValues, K extends Path<T>>({
+export const SWR_Areas_CheckBox = <T extends FieldValues, K extends Path<T>>({
   field,
   fieldState,
 }: SWR_Areas_SelectProps<T, K>) => {
@@ -190,34 +185,25 @@ export const SWR_Areas_Select = <T extends FieldValues, K extends Path<T>>({
   if (data.length === 0) return <div>目前無可用區域</div>;
 
   return (
-    <div>
-      <Select
-        onValueChange={(value) => {
-          // 確保 value 是陣列
-          const newValue = Array.isArray(value) ? value : [value];
-          field.onChange(newValue);
-        }}
-        value={field.value || []} // 確保值是陣列
-        multiple // 啟用多選（根據 shadcn/ui 的實現，可能需要自訂）
-      >
-        <SelectTrigger
-          className={fieldState.invalid ? "border-red-500" : ""}
-          aria-label="選擇地區"
-        >
-          <SelectValue placeholder="選擇地區" />
-        </SelectTrigger>
-        <SelectContent>
-          {data.map((datas) => (
-            <SelectItem
-              key={datas.id}
-              value={datas.mission_area}
-              aria-label={`選擇 ${datas.mission_area}`}
-            >
-              {datas.mission_area}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+    <div className="space-y-2">
+      <FormLabel>地區</FormLabel>
+      {data.map((datas) => (
+        <div key={datas.id} className="flex items-center space-x-2">
+          <Checkbox
+            id={`area-${datas.id}`}
+            checked={(field.value as string[])?.includes(datas.mission_area) || false}
+            onCheckedChange={(checked) => {
+              const currentValue = (field.value as string[]) || [];
+              const newValue = checked
+                ? [...currentValue, datas.mission_area]
+                : currentValue.filter((val: string) => val !== datas.mission_area);
+              field.onChange(newValue);
+            }}
+            disabled={field.disabled}
+          />
+          <Label htmlFor={`area-${datas.id}`}>{datas.mission_area}</Label>
+        </div>
+      ))}
       {fieldState.error && <FormMessage>{fieldState.error.message}</FormMessage>}
     </div>
   );

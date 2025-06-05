@@ -1,18 +1,66 @@
-// import NextAuth from "next-auth";
+// // import NextAuth from "next-auth";
+// import { auth } from "./auth";
+
+// export default auth((req) => {
+//     const publicRoutes = ['/','/adminlogin','/teacherlogin',"/hide/createMainAdmin","/forgot-password","/reset-password","/api/Send_reset_email","/api/Reset_Password"];
+//     const currentPath = req.nextUrl.pathname;
+
+//     if(!req.auth && !publicRoutes.includes(currentPath)) {
+//         console.log("要登入");
+//         const newUrl = new URL("/",req.nextUrl) 
+//         return Response.redirect(newUrl)
+//     }
+
+// })
+
+// export const config = {
+//     matcher: ['/((?!.+\\.[\\w]+$|_next).*)','/','/(api|trpc)(.*)'],
+// }
+
 import { auth } from "./auth";
+import { NextResponse } from "next/server";
+
+const publicRoutes = ['/', '/adminlogin', '/teacherlogin', "/hide/createMainAdmin", "/forgot-password", "/reset-password"];
 
 export default auth((req) => {
-    const publicRoutes = ['/','/adminlogin','/teacherlogin',"/hide/createMainAdmin","/forgot-password","/reset-password","/api/Send_reset_email","/api/Reset_Password"];
-    const currentPath = req.nextUrl.pathname;
-
-    if(!req.auth && !publicRoutes.includes(currentPath)) {
-        console.log("要登入");
-        const newUrl = new URL("/",req.nextUrl) 
-        return Response.redirect(newUrl)
-    }
-
-})
+  const currentPath = req.nextUrl.pathname;
+  
+  if (!req.auth?.user && !publicRoutes.includes(currentPath)) {
+    const newUrl = new URL("/", req.nextUrl.origin);
+    return NextResponse.redirect(newUrl);
+  }
+});
 
 export const config = {
-    matcher: ['/((?!.+\\.[\\w]+$|_next).*)','/','/(api|trpc)(.*)'],
-}
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+};
+
+
+
+// import { auth } from "./auth";
+// import { NextResponse } from "next/server";
+
+// export default auth(async (req) => {
+//   const publicRoutes = [
+//     '/',
+//     '/adminlogin',
+//     '/teacherlogin',
+//     '/hide/createMainAdmin',
+//     '/forgot-password',
+//     '/reset-password',
+//     '/api/Send_reset_email',
+//     '/api/Reset_Password',
+//   ];
+//   const currentPath = req.nextUrl.pathname;
+
+//   if (!req.auth && !publicRoutes.includes(currentPath)) {
+//     console.log("要登入");
+//     return NextResponse.redirect(new URL("/", req.nextUrl));
+//   }
+
+//   return NextResponse.next();
+// });
+
+// export const config = {
+//   matcher: ['/((?!.+\\.[\\w]+$|_next).*)', '/', '/(api|trpc)(.*)'],
+// };

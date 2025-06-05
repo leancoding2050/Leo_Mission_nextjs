@@ -12,6 +12,8 @@ const ColorLists = () => {
     const session = useSession() ;
     const UserId = session.data?.user?.id ;
 
+    console.log('UserId : ',UserId)
+
     const [GetColor,setGetColor] = useState([])
 
     useEffect(() => {
@@ -33,6 +35,11 @@ const ColorLists = () => {
 
     <>
     <div>
+    <Link href={`/user/${UserId}/admin`} className="text-blue-500 hover:underline">
+        Admin主頁
+      </Link>
+
+
         <Link href={`/user/${UserId}/admin/colorLists/createColor`}>
           createColor
         </Link>

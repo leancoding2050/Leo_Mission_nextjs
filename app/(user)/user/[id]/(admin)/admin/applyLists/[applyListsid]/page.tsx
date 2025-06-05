@@ -23,6 +23,28 @@
 // import { Apply_Accept_Task_Action } from "@/actions/Apply-Accept-Task";
 // import { Apply_Reject_Task_Action } from "@/actions/Apply-Reject-Task";
 // import Link from "next/link";
+
+// interface Apply {
+//   id: string;
+//   apply_user_id: string;
+//   apply_code: string;
+//   apply_title: string;
+//   apply_contect: string;
+//   apply_task_code: string | null;
+//   apply_job_code: string | null;
+//   apply_job_id: string | null;
+//   apply_task_id: string | null;
+//   applicant_name: string;
+//   apply_status: boolean;
+//   apply_type: "JOB" | "TASK";
+// }
+
+// interface User {
+//   id: string;
+//   username: string;
+// }
+
+
 // const ApplyListsByIdAdmin = () => {
 //     const param = useParams();
     
@@ -253,28 +275,27 @@
 
 import { Apply_Accept_Schema } from "@/actions/Apply-Accept/schema";
 import { Apply_Reject_Schema } from "@/actions/Apply-Reject/schema";
-import { Apply_Accept_Task_Schema } from "@/actions/Apply-Accept-Task/schema";
-import { Apply_Reject_Task_Schema } from "@/actions/Apply-Reject-Task/schema";
-import { Apply_Accept_Action } from "@/actions/Apply-Accept";
-import { Apply_Reject_Action } from "@/actions/Apply-Reject";
-import { Apply_Accept_Task_Action } from "@/actions/Apply-Accept-Task";
-import { Apply_Reject_Task_Action } from "@/actions/Apply-Reject-Task";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useEffect, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import useSWR from "swr";
 import * as z from "zod";
+import {
+  Form,
+  // FormControl,
+  // FormField,
+  // FormItem,
+  // FormLabel,
+  // FormMessage,
+} from "@/components/ui/form";
+import { Apply_Accept_Action } from "@/actions/Apply-Accept";
+import { Apply_Reject_Action } from "@/actions/Apply-Reject";
+import { Apply_Accept_Task_Schema } from "@/actions/Apply-Accept-Task/schema";
+import { Apply_Reject_Task_Schema } from "@/actions/Apply-Reject-Task/schema";
+import { Apply_Accept_Task_Action } from "@/actions/Apply-Accept-Task";
+import { Apply_Reject_Task_Action } from "@/actions/Apply-Reject-Task";
+import Link from "next/link";
 
 interface Apply {
   id: string;
@@ -296,38 +317,96 @@ interface User {
   username: string;
 }
 
-const fetcher = async (url: string) => {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error("獲取數據失敗");
-  return res.json();
-};
-
 const ApplyListsByIdAdmin = () => {
   const param = useParams();
   const UserId = param?.id as string;
   const applyId = param?.applyListsid as string;
 
+  const [GetApplyDatabyId, setGetApplyDatabyId] = useState<Apply[]>([]);
+  const [GetUserDataById, setGetUserDataById] = useState<User[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  // 使用 SWR 獲取申請數據
-  const { data: GetApplyDatabyId, error: applyError } = useSWR<Apply[]>(
-    applyId ? `http://127.0.0.1:8000/api/apply/lists/${applyId}` : null,
-    fetcher
-  );
+  const getApplyListsDatabyId = async (id: string): Promise<Apply[]> => {
+    const res = await fetch(`/api/Apply_Lists_by_ID/${id}`);
+    if (!res.ok) {
+      throw new Error("斷線!");
+    }
+    return res.json();
+  };
 
-  // 使用 SWR 獲取用戶數據
-  const applyuserId = GetApplyDatabyId?.[0]?.apply_user_id;
-  const { data: GetUserDataById, error: userError } = useSWR<User[]>(
-    applyuserId ? `http://127.0.0.1:8000/api/user/lists/${applyuserId}` : null,
-    fetcher
-  );
+  const getuserlistsdatabyid = async (id: string): Promise<User[]> => {
+    const res = await fetch(`/api/User_Lists_by_ID/${id}`);
+    if (!res.ok) {
+      throw new Error("斷線!");
+    }
+    return res.json();
+  };
 
-  const jobId = GetApplyDatabyId?.[0]?.apply_job_id;
-  const applyType = GetApplyDatabyId?.[0]?.apply_type;
-  const taskId = GetApplyDatabyId?.[0]?.apply_task_id;
-  const username = GetUserDataById?.[0]?.username;
+  useEffect(() => {
+    const fetchApplyData = async () => {
+      setIsLoading(true);
+      try {
+        const result = await getApplyListsDatabyId(applyId);
+        setGetApplyDatabyId(result);
+      } catch (error) {
+        setError("Failed to fetch apply data");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchApplyData();
+  }, [applyId]);
 
-  // JOB 表單
+  useEffect(() => {
+    if (GetApplyDatabyId.length > 0) {
+      const applyuserId = GetApplyDatabyId[0].apply_user_id;
+      const fetchUserData = async () => {
+        setIsLoading(true);
+        try {
+          const result = await getuserlistsdatabyid(applyuserId);
+          setGetUserDataById(result);
+        } catch (error) {
+          setError("Failed to fetch user data");
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      fetchUserData();
+    }
+  }, [GetApplyDatabyId]);
+
+  useEffect(() => {
+    if (GetApplyDatabyId.length > 0 && GetUserDataById.length > 0) {
+      const jobId = GetApplyDatabyId[0].apply_job_id;
+      const applyuserId = GetApplyDatabyId[0].apply_user_id;
+      const applyType = GetApplyDatabyId[0].apply_type;
+      const taskId = GetApplyDatabyId[0].apply_task_id;
+      const username = GetUserDataById[0].username;
+
+      if (applyType === "JOB") {
+        apply_job_status_Accept.setValue("jobId", jobId || "");
+        apply_job_status_Accept.setValue("userId", UserId);
+        apply_job_status_Accept.setValue("applyuserId", applyuserId || "");
+        apply_job_status_Accept.setValue("applyId", applyId);
+        apply_job_status_Accept.setValue("applyusername", username || "");
+
+        apply_job_status_Reject.setValue("jobId", jobId || "");
+        apply_job_status_Reject.setValue("userId", UserId);
+      } else if (applyType === "TASK") {
+        apply_task_status_Accept.setValue("taskId", taskId || "");
+        apply_task_status_Accept.setValue("userId", UserId);
+        apply_task_status_Accept.setValue("applyuserId", applyuserId || "");
+        apply_task_status_Accept.setValue("applyId", applyId);
+        apply_task_status_Accept.setValue("applyusername", username || "");
+
+        apply_task_status_Reject.setValue("taskId", taskId || "");
+        apply_task_status_Reject.setValue("userId", UserId);
+      }
+    }
+  }, [GetApplyDatabyId, GetUserDataById, UserId, applyId]);
+
   const apply_job_status_Accept = useForm<z.infer<typeof Apply_Accept_Schema>>({
     resolver: zodResolver(Apply_Accept_Schema),
     defaultValues: {
@@ -349,7 +428,6 @@ const ApplyListsByIdAdmin = () => {
     },
   });
 
-  // TASK 表單
   const apply_task_status_Accept = useForm<
     z.infer<typeof Apply_Accept_Task_Schema>
   >({
@@ -375,40 +453,6 @@ const ApplyListsByIdAdmin = () => {
     },
   });
 
-  // 動態更新表單值
-  useEffect(() => {
-    if (applyType === "JOB" && jobId && applyuserId && username) {
-      apply_job_status_Accept.reset({
-        userId: UserId,
-        jobId,
-        applyuserId,
-        job_apply: true,
-        applyId,
-        applyusername: username,
-      });
-      apply_job_status_Reject.reset({
-        userId: UserId,
-        jobId,
-        job_apply: false,
-      });
-    } else if (applyType === "TASK" && taskId && applyuserId && username) {
-      apply_task_status_Accept.reset({
-        applyId,
-        taskId,
-        userId: UserId,
-        task_apply: true,
-        applyuserId,
-        applyusername: username,
-      });
-      apply_task_status_Reject.reset({
-        taskId,
-        userId: UserId,
-        task_apply: false,
-      });
-    }
-  }, [jobId, taskId, applyuserId, applyType, username, UserId, applyId]);
-
-  // 表單提交處理
   const apply_job_status_Accept_onSubmit = (
     values: z.infer<typeof Apply_Accept_Schema>
   ) => {
@@ -445,96 +489,91 @@ const ApplyListsByIdAdmin = () => {
     });
   };
 
-  // 錯誤和載入處理
-  if (applyError || userError)
-    return (
-      <div className="text-red-500">
-        無法載入數據：{applyError?.message || userError?.message}
-      </div>
-    );
-  if (!GetApplyDatabyId || !GetUserDataById) return <div>載入中...</div>;
-  if (GetApplyDatabyId.length === 0) return <div>無申請數據</div>;
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
 
   return (
-    <div className="p-4">
-      <Link
-        href={`/user/${UserId}/admin/applyLists/`}
-        className="text-blue-500 hover:underline"
-      >
-        返回
-      </Link>
-      <h1 className="text-2xl font-bold mb-4">申請詳情</h1>
-
+    <>
+      <Link href={`/user/${UserId}/admin/applyLists/`}>返回</Link>
+      <h1>ApplyListsByIdAdmin</h1>
       <div>
-        {GetApplyDatabyId.map((d) => (
-          <div key={d.id} className="border p-4 rounded mb-4">
-            {d.apply_type === "JOB" ? (
-              <>
-                <p className="font-semibold">工作申請</p>
-                <p>申請人: {d.applicant_name}</p>
-                <p>申請編號: {d.apply_code}</p>
-                <p>申請工作編號: {d.apply_job_code || "無"}</p>
-                <p>申請標題: {d.apply_title}</p>
-                <p>申請內容: {d.apply_contect}</p>
-                <div className="mt-4 space-y-2">
-                  <Form {...apply_job_status_Accept}>
-                    <form
-                      onSubmit={apply_job_status_Accept.handleSubmit(
-                        apply_job_status_Accept_onSubmit
-                      )}
-                    >
-                      <Button disabled={isPending}>接受</Button>
-                    </form>
-                  </Form>
-                  <Form {...apply_job_status_Reject}>
-                    <form
-                      onSubmit={apply_job_status_Reject.handleSubmit(
-                        apply_job_status_Reject_onSubmit
-                      )}
-                    >
-                      <Button disabled={isPending} variant="destructive">
-                        拒絕
-                      </Button>
-                    </form>
-                  </Form>
-                </div>
-              </>
-            ) : (
-              <>
-                <p className="font-semibold">任務申請</p>
-                <p>申請人: {d.applicant_name}</p>
-                <p>申請編號: {d.apply_code}</p>
-                <p>申請任務編號: {d.apply_task_code || "無"}</p>
-                <p>申請標題: {d.apply_title}</p>
-                <p>申請內容: {d.apply_contect}</p>
-                <div className="mt-4 space-y-2">
-                  <Form {...apply_task_status_Accept}>
-                    <form
-                      onSubmit={apply_task_status_Accept.handleSubmit(
-                        apply_task_status_Accept_onSubmit
-                      )}
-                    >
-                      <Button disabled={isPending}>接受</Button>
-                    </form>
-                  </Form>
-                  <Form {...apply_task_status_Reject}>
-                    <form
-                      onSubmit={apply_task_status_Reject.handleSubmit(
-                        apply_task_status_Reject_onSubmit
-                      )}
-                    >
-                      <Button disabled={isPending} variant="destructive">
-                        拒絕
-                      </Button>
-                    </form>
-                  </Form>
-                </div>
-              </>
-            )}
-          </div>
-        ))}
+        {GetApplyDatabyId.map((d) => {
+          if (d.apply_type === "JOB") {
+            return (
+              <div key={d.id}>
+                <p>JOB</p>
+                申請人: {d.applicant_name}
+                <br />
+                申請編號: {d.apply_code}
+                <br />
+                申請工作編號: {d.apply_job_code}
+                <br />
+                申請標題: {d.apply_title}
+                <br />
+                申請內容: {d.apply_contect}
+                <br />
+                <Form {...apply_job_status_Accept}>
+                  <form
+                    onSubmit={apply_job_status_Accept.handleSubmit(
+                      apply_job_status_Accept_onSubmit
+                    )}
+                  >
+                    <Button disabled={isPending}>接受</Button>
+                  </form>
+                </Form>
+                <br />
+                <Form {...apply_job_status_Reject}>
+                  <form
+                    onSubmit={apply_job_status_Reject.handleSubmit(
+                      apply_job_status_Reject_onSubmit
+                    )}
+                  >
+                    <Button disabled={isPending}>拒絕</Button>
+                  </form>
+                </Form>
+              </div>
+            );
+          }
+          if (d.apply_type === "TASK") {
+            return (
+              <div key={d.id}>
+                <p>TASK</p>
+                申請人: {d.applicant_name}
+                <br />
+                申請編號: {d.apply_code}
+                <br />
+                申請工作編號: {d.apply_job_code}
+                <br />
+                申請標題: {d.apply_title}
+                <br />
+                申請內容: {d.apply_contect}
+                <br />
+                <Form {...apply_task_status_Accept}>
+                  <form
+                    onSubmit={apply_task_status_Accept.handleSubmit(
+                      apply_task_status_Accept_onSubmit
+                    )}
+                  >
+                    <Button disabled={isPending}>接受</Button>
+                  </form>
+                </Form>
+                <br />
+                <Form {...apply_task_status_Reject}>
+                  <form
+                    onSubmit={apply_task_status_Reject.handleSubmit(
+                      apply_task_status_Reject_onSubmit
+                    )}
+                  >
+                    <Button disabled={isPending}>拒絕</Button>
+                  </form>
+                </Form>
+              </div>
+            );
+          }
+          return null;
+        })}
       </div>
-    </div>
+    </>
   );
 };
 

@@ -244,7 +244,8 @@ const JobBoardById = () => {
         alert("Application submitted successfully!");
         apply_create_form.reset();
       } catch (err) {
-        alert("Failed to submit application. Please try again.");
+        console.log(" submit error " , err)
+        // alert("Failed to submit application. Please try again.");
       }
     });
   };
