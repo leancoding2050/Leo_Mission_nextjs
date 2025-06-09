@@ -138,25 +138,46 @@ const TaskListById = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const getUserListsDatabyId = async (id: string) => {
-      setIsLoading(true);
-      try {
-        const res = await fetch(`/api/User_Lists_by_ID/${id}`);
-        if (!res.ok) {
-          throw new Error("無法獲取用戶數據");
-        }
-        const result = await res.json();
-        setGetUserListsDatabyId(result);
-      } catch (error) {
-        setError("無法載入數據");
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  // useEffect(() => {
+  //   const getUserListsDatabyId = async (id: string) => {
+  //     setIsLoading(true);
+  //     try {
+  //       const res = await fetch(`/api/User_Lists_by_ID/${id}`);
+  //       if (!res.ok) {
+  //         throw new Error("無法獲取用戶數據");
+  //       }
+  //       const result = await res.json();
+  //       setGetUserListsDatabyId(result);
+  //     } catch (error) {
+  //       setError("無法載入數據");
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   };
 
-    getUserListsDatabyId(userId);
-  }, [userId]);
+  //   getUserListsDatabyId(userId);
+  // }, [userId]);
+
+  useEffect(() => {
+  const getUserListsDatabyId = async (id: string) => {
+    setIsLoading(true);
+    try {
+      const res = await fetch(`/api/User_Lists_by_ID/${id}`);
+      if (!res.ok) {
+        throw new Error("無法獲取用戶數據");
+      }
+      const result = await res.json();
+      setGetUserListsDatabyId(result);
+    } catch (error) {
+      console.error("無法載入數據:", error); // 記錄錯誤詳情
+      setError("無法載入數據");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  getUserListsDatabyId(userId);
+}, [userId]);
 
   if (isLoading) {
     return <div>載入中...</div>;

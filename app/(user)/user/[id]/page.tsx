@@ -354,26 +354,48 @@ export default function UserTeacherPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // useEffect(() => {
+  //   const fetchUserdata = async (Id: string) => {
+  //     setIsLoading(true);
+  //     try {
+  //       const res = await fetch(`/api/User_Lists_by_ID/${Id}`);
+  //       if (!res.ok) {
+  //         throw new Error("無法獲取用戶數據");
+  //       }
+  //       const data: User[] = await res.json();
+  //       setGetUserdata(data);
+  //     } catch (error) {
+  //       setError("獲取數據失敗，請稍後重試");
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   };
+  //   if (userId) {
+  //     fetchUserdata(userId);
+  //   }
+  // }, [userId]);
+
   useEffect(() => {
-    const fetchUserdata = async (Id: string) => {
-      setIsLoading(true);
-      try {
-        const res = await fetch(`/api/User_Lists_by_ID/${Id}`);
-        if (!res.ok) {
-          throw new Error("無法獲取用戶數據");
-        }
-        const data: User[] = await res.json();
-        setGetUserdata(data);
-      } catch (error) {
-        setError("獲取數據失敗，請稍後重試");
-      } finally {
-        setIsLoading(false);
+  const fetchUserdata = async (Id: string) => {
+    setIsLoading(true);
+    try {
+      const res = await fetch(`/api/User_Lists_by_ID/${Id}`);
+      if (!res.ok) {
+        throw new Error("無法獲取用戶數據");
       }
-    };
-    if (userId) {
-      fetchUserdata(userId);
+      const data: User[] = await res.json();
+      setGetUserdata(data);
+    } catch (error) {
+      console.error("獲取用戶數據失敗:", error); // 記錄錯誤詳情
+      setError("獲取數據失敗，請稍後重試");
+    } finally {
+      setIsLoading(false);
     }
-  }, [userId]);
+  };
+  if (userId) {
+    fetchUserdata(userId);
+  }
+}, [userId]);
 
   if (status === "loading")
     return <div className="text-center text-[#1D475D] font-noto-sans-tc">載入 session 中...</div>;

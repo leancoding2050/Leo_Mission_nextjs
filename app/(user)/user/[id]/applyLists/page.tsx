@@ -267,14 +267,14 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faCalendarDays,
-  faUser,
-  faClipboardCheck,
-  faRectangleList,
-  faClock,
-} from "@fortawesome/free-solid-svg-icons";
+// import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+// import {
+//   faCalendarDays,
+//   faUser,
+//   faClipboardCheck,
+//   faRectangleList,
+//   faClock,
+// } from "@fortawesome/free-solid-svg-icons";
 
 interface Apply {
   id: string;

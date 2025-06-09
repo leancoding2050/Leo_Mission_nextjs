@@ -1,5 +1,5 @@
 import Teacher_Login_Form from "@/components/Form/teacher_login_form"
-import ForgotPassword from "../forgot-password/page"
+// import ForgotPassword from "../forgot-password/page"
 import Link from "next/link"
 
 const TeacherLoginPage = () => {

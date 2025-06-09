@@ -312,7 +312,7 @@
 "use client";
 
 import * as z from "zod";
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
@@ -325,7 +325,7 @@ import { CreateSalaryAction } from "@/actions/Create-Salary";
 
 const CreateSalaryForm = () => {
     const param = useParams();
-    const UserId = param?.id as string;
+   // const UserId = param?.id as string;
     const [isPending, startTransition] = useTransition();
 
     const salary_create_form = useForm<z.infer<typeof Create_Salary_Schema>>({

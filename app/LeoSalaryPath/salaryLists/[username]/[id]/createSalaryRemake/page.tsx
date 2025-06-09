@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 
 
-const createSalaryRemakePage = () => {
+const CreateSalaryRemakePage = () => {
   const params = useParams();
   const username = params.username;
 
@@ -20,4 +20,4 @@ const createSalaryRemakePage = () => {
   );
 };
 
-export default createSalaryRemakePage;
+export default CreateSalaryRemakePage;

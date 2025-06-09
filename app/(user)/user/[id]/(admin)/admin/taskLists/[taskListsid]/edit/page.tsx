@@ -4,7 +4,7 @@ import EditTaskForm from "@/components/EditForm/edit-task-Form";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 
-const edittaskpage = () => {
+const EditTaskPage = () => {
         const param = useParams();
         
         const UserId = param?.id as string;
@@ -24,4 +24,4 @@ const edittaskpage = () => {
         
     
 }
-export default edittaskpage
+export default EditTaskPage

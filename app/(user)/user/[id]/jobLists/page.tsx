@@ -602,20 +602,35 @@ export default function JobLists({ userId: propUserId, initialJobs = [] }: JobLi
     }
   };
 
-  const formatDate = (dateString: string) => {
-    try {
-      const date = new Date(dateString);
-      if (isNaN(date.getTime())) throw new Error("無效日期");
-      return date.toLocaleDateString("zh-TW", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-      }).replace(/\./g, "-");
-    } catch (error) {
-      console.error("無效日期:", dateString);
-      return "N/A";
-    }
-  };
+  // const formatDate = (dateString: string) => {
+  //   try {
+  //     const date = new Date(dateString);
+  //     if (isNaN(date.getTime())) throw new Error("無效日期");
+  //     return date.toLocaleDateString("zh-TW", {
+  //       year: "numeric",
+  //       month: "2-digit",
+  //       day: "2-digit",
+  //     }).replace(/\./g, "-");
+  //   } catch (error) {
+  //     console.error("無效日期:", dateString);
+  //     return "N/A";
+  //   }
+  // };
+
+const formatDate = (dateString: string) => {
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) throw new Error("無效日期");
+    return date.toLocaleDateString("zh-TW", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).replace(/\./g, "-");
+  } catch (error) {
+    console.error("無效日期:", dateString, error); // 記錄 error 詳情
+    return "N/A";
+  }
+};
 
   const renderJobList = (data: Job[]) => {
     return getSortedData(data).map((job: Job) => (

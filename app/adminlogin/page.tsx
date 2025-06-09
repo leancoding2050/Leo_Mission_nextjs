@@ -1,5 +1,5 @@
 import Admin_Login_Form from "@/components/Form/admin_login_form"
-import ForgotPassword from "../forgot-password/page"
+// import ForgotPassword from "../forgot-password/page"
 import Link from "next/link"
 
 const AdminLoginPage = () => {

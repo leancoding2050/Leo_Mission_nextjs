@@ -410,21 +410,38 @@ const TaskJobListById = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // const getUserListsDatabyId = useCallback(async (id: string) => {
+  //   setIsLoading(true);
+  //   try {
+  //     const res = await fetch(`/api/User_Lists_by_ID/${id}`);
+  //     if (!res.ok) {
+  //       throw new Error("無法獲取用戶數據");
+  //     }
+  //     const result = await res.json();
+  //     setGetUserListsDatabyId(result);
+  //   } catch (error) {
+  //     setError("無法載入數據");
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // }, []);
+
   const getUserListsDatabyId = useCallback(async (id: string) => {
-    setIsLoading(true);
-    try {
-      const res = await fetch(`/api/User_Lists_by_ID/${id}`);
-      if (!res.ok) {
-        throw new Error("無法獲取用戶數據");
-      }
-      const result = await res.json();
-      setGetUserListsDatabyId(result);
-    } catch (error) {
-      setError("無法載入數據");
-    } finally {
-      setIsLoading(false);
+  setIsLoading(true);
+  try {
+    const res = await fetch(`/api/User_Lists_by_ID/${id}`);
+    if (!res.ok) {
+      throw new Error("無法獲取用戶數據");
     }
-  }, []);
+    const result = await res.json();
+    setGetUserListsDatabyId(result);
+  } catch (error) {
+    console.error("無法載入數據:", error); // 記錄錯誤詳情
+    setError("無法載入數據");
+  } finally {
+    setIsLoading(false);
+  }
+}, []);
 
   useEffect(() => {
     getUserListsDatabyId(userId);
@@ -460,7 +477,7 @@ const TaskJobListById = () => {
     const now = new Date();
     const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
     const midnight = new Date(tomorrow.getFullYear(), tomorrow.getMonth(), tomorrow.getDate(), 0, 0, 0);
-    const timeUntilMidnight = midnight.getTime() - now.getTime();
+    // const timeUntilMidnight = midnight.getTime() - now.getTime();
 
     const timeoutId = setTimeout(() => {
       savePreviousDayJobToSalary(userId)

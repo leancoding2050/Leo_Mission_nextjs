@@ -187,33 +187,63 @@ const JobBoardById = () => {
 
   const { id: UserId, joblistid: JobId } = useParams<{ id: string; joblistid: string }>();
 
-  useEffect(() => {
-    const fetchGetJobById = async (id: string) => {
-      try {
-        const res = await fetch(`/api/Job_Lists_by_ID/${id}`);
-        if (!res.ok) throw new Error("Failed to fetch job data");
-        const data = await res.json();
-        setGetJobById(data);
-      } catch (err) {
-        setError("Unable to load job data. Please try again later.");
-      }
-    };
-    if (JobId) fetchGetJobById(JobId);
-  }, [JobId]);
+  // useEffect(() => {
+  //   const fetchGetJobById = async (id: string) => {
+  //     try {
+  //       const res = await fetch(`/api/Job_Lists_by_ID/${id}`);
+  //       if (!res.ok) throw new Error("Failed to fetch job data");
+  //       const data = await res.json();
+  //       setGetJobById(data);
+  //     } catch (err) {
+  //       setError("Unable to load job data. Please try again later.");
+  //     }
+  //   };
+  //   if (JobId) fetchGetJobById(JobId);
+  // }, [JobId]);
+
+  // useEffect(() => {
+  //   const getUserListsDataById = async (id: string) => {
+  //     try {
+  //       const res = await fetch(`/api/User_Lists_by_ID/${id}`);
+  //       if (!res.ok) throw new Error("Failed to fetch user data");
+  //       const result = await res.json();
+  //       setGetUserListsById(result);
+  //     } catch (err) {
+  //       setError("Unable to load user data. Please try again later.");
+  //     }
+  //   };
+  //   if (UserId) getUserListsDataById(UserId);
+  // }, [UserId]);
 
   useEffect(() => {
-    const getUserListsDataById = async (id: string) => {
-      try {
-        const res = await fetch(`/api/User_Lists_by_ID/${id}`);
-        if (!res.ok) throw new Error("Failed to fetch user data");
-        const result = await res.json();
-        setGetUserListsById(result);
-      } catch (err) {
-        setError("Unable to load user data. Please try again later.");
-      }
-    };
-    if (UserId) getUserListsDataById(UserId);
-  }, [UserId]);
+  const fetchGetJobById = async (id: string) => {
+    try {
+      const res = await fetch(`/api/Job_Lists_by_ID/${id}`);
+      if (!res.ok) throw new Error("Failed to fetch job data");
+      const data = await res.json();
+      setGetJobById(data);
+    } catch (err) {
+      console.error("Error fetching job data:", err); // 記錄錯誤
+      setError("Unable to load job data. Please try again later.");
+    }
+  };
+  if (JobId) fetchGetJobById(JobId);
+}, [JobId]);
+
+useEffect(() => {
+  const getUserListsDataById = async (id: string) => {
+    try {
+      const res = await fetch(`/api/User_Lists_by_ID/${id}`);
+      if (!res.ok) throw new Error("Failed to fetch user data");
+      const result = await res.json();
+      setGetUserListsById(result);
+    } catch (err) {
+      console.error("Error fetching user data:", err); // 記錄錯誤
+      setError("Unable to load user data. Please try again later.");
+    }
+  };
+  if (UserId) getUserListsDataById(UserId);
+}, [UserId]);
 
   const apply_create_form = useForm<z.infer<typeof Create_Apply_Schema>>({
     resolver: zodResolver(Create_Apply_Schema),

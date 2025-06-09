@@ -344,38 +344,75 @@ const ApplyListsByIdAdmin = () => {
     return res.json();
   };
 
-  useEffect(() => {
-    const fetchApplyData = async () => {
+  // useEffect(() => {
+  //   const fetchApplyData = async () => {
+  //     setIsLoading(true);
+  //     try {
+  //       const result = await getApplyListsDatabyId(applyId);
+  //       setGetApplyDatabyId(result);
+  //     } catch (error) {
+  //       setError("Failed to fetch apply data");
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   };
+  //   fetchApplyData();
+  // }, [applyId]);
+
+  // useEffect(() => {
+  //   if (GetApplyDatabyId.length > 0) {
+  //     const applyuserId = GetApplyDatabyId[0].apply_user_id;
+  //     const fetchUserData = async () => {
+  //       setIsLoading(true);
+  //       try {
+  //         const result = await getuserlistsdatabyid(applyuserId);
+  //         setGetUserDataById(result);
+  //       } catch (error) {
+  //         setError("Failed to fetch user data");
+  //       } finally {
+  //         setIsLoading(false);
+  //       }
+  //     };
+  //     fetchUserData();
+  //   }
+  // }, [GetApplyDatabyId]);
+
+
+useEffect(() => {
+  const fetchApplyData = async () => {
+    setIsLoading(true);
+    try {
+      const result = await getApplyListsDatabyId(applyId);
+      setGetApplyDatabyId(result);
+    } catch (err) {
+      console.error("Error fetching apply data:", err);
+      setError("Failed to fetch apply data");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  fetchApplyData();
+}, [applyId]);
+
+useEffect(() => {
+  if (GetApplyDatabyId.length > 0) {
+    const applyuserId = GetApplyDatabyId[0].apply_user_id;
+    const fetchUserData = async () => {
       setIsLoading(true);
       try {
-        const result = await getApplyListsDatabyId(applyId);
-        setGetApplyDatabyId(result);
-      } catch (error) {
-        setError("Failed to fetch apply data");
+        const result = await getuserlistsdatabyid(applyuserId);
+        setGetUserDataById(result);
+      } catch (err) {
+        console.error("Error fetching user data:", err);
+        setError("Failed to fetch user data");
       } finally {
         setIsLoading(false);
       }
     };
-    fetchApplyData();
-  }, [applyId]);
+    fetchUserData();
+  }
+}, [GetApplyDatabyId]);
 
-  useEffect(() => {
-    if (GetApplyDatabyId.length > 0) {
-      const applyuserId = GetApplyDatabyId[0].apply_user_id;
-      const fetchUserData = async () => {
-        setIsLoading(true);
-        try {
-          const result = await getuserlistsdatabyid(applyuserId);
-          setGetUserDataById(result);
-        } catch (error) {
-          setError("Failed to fetch user data");
-        } finally {
-          setIsLoading(false);
-        }
-      };
-      fetchUserData();
-    }
-  }, [GetApplyDatabyId]);
 
   useEffect(() => {
     if (GetApplyDatabyId.length > 0 && GetUserDataById.length > 0) {

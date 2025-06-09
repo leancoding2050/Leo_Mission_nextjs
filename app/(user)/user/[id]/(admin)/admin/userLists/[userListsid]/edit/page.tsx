@@ -4,7 +4,7 @@ import EditUserForm from "@/components/EditForm/edit-user-Form";
 import Link from "next/link";
 
 import { useParams } from "next/navigation";
-const userListsbyIdedit = () => {
+const UserListsByIdEdit = () => {
     const params = useParams();
     console.log(params)
     const adminId = params?.id as string ;
@@ -20,4 +20,4 @@ const userListsbyIdedit = () => {
     )
 }
 
-export default userListsbyIdedit
+export default UserListsByIdEdit

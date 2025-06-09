@@ -8,14 +8,32 @@ import { UpdataConfirmJob } from "@/actions/UPDATA-Confirm-Job";
       import { useEffect, useState, useCallback } from "react";
       
 
-      const JobListById = () => {
-        const param = useParams();
-        const userId = param.id as string;
-      
-        const [GetUserListsDatabyId, setGetUserListsDatabyId] = useState<any[]>([]);
-        const [showAlertButton, setShowAlertButton] = useState(false);
-        const [GetJobdetailbyId, setGetJobdetailbyId] = useState<any[]>([]);
-        const [Jobday, setJobday] = useState<string | null>(null); // 新增狀態以存儲 Jobday
+    interface User {
+  id: string;
+  username: string;
+  job?: { id: string; job_day: string }[]; // 根據上下文推測 job 結構
+}
+
+interface Job {
+  id: string;
+  job_code: string;
+  job_place: string;
+  job_time: string;
+  job_price: number;
+  showprice: boolean;
+  job_day: string;
+  job_school_name: string;
+  job_area: string;
+}
+
+const JobListById = () => {
+  const param = useParams();
+  const userId = param.id as string;
+
+  const [GetUserListsDatabyId, setGetUserListsDatabyId] = useState<User[]>([]); // 改為 User[]
+  const [showAlertButton, setShowAlertButton] = useState(false);
+  const [GetJobdetailbyId, setGetJobdetailbyId] = useState<Job[]>([]); // 改為 Job[]
+  const [Jobday, setJobday] = useState<string | null>(null);
       
         const getUserListsDatabyId = useCallback(async (id: string) => {
           try {
@@ -98,7 +116,7 @@ import { UpdataConfirmJob } from "@/actions/UPDATA-Confirm-Job";
           const now = new Date();
           const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
           const midnight = new Date(tomorrow.getFullYear(), tomorrow.getMonth(), tomorrow.getDate(), 0, 0, 0);
-          const timeUntilMidnight = midnight.getTime() - now.getTime();
+          // const timeUntilMidnight = midnight.getTime() - now.getTime();
       
           const timeoutId = setTimeout(() => {
             savePreviousDayJobToSalary(userId)
