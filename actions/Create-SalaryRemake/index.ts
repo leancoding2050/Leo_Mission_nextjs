@@ -29,7 +29,7 @@ const handler = async (data: InputType) : Promise<ReturnType> => {
     }
 
     console.log("-- SalaryRemake_data  -- : ", SalaryRemake_data , "-- End --")
-    return redirect(`/LeoSalaryPath/salaryLists/${username}`)
+    return redirect(`/LeomonthlyrecordsPath/salaryLists/${username}`)
 }
 
 export const Create_SalaryRemake_Action = CreateSafeAction(Create_SalaryRemake_Schema, handler);

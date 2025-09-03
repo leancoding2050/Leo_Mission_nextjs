@@ -21,7 +21,7 @@ const handler = async (data: InputType) : Promise<ReturnType> => {
         school_name,
         completed,
         task_public,
-        job,
+        // job,
         jobidbyarray,
         teacher,
     } = data;

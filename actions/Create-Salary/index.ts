@@ -176,7 +176,7 @@ const handler = async (data: InputType): Promise<ReturnType> => {
     }
 
     console.log("-- salary_data -- : ", salary_data, "-- End --");
-    return redirect(`/LeoSalaryPath`);
+    return redirect(`/LeomonthlyrecordsPath`);
 };
 
 export const CreateSalaryAction = CreateSafeAction(Create_Salary_Schema, handler);

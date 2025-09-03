@@ -685,6 +685,7 @@ import { Apply_Reject_Task_Action } from "@/actions/Apply-Reject-Task";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
+import toast, { Toaster } from "react-hot-toast"; // 添加 react-hot-toast
 
 interface Apply {
   id: string;
@@ -807,6 +808,66 @@ const ApplyListsByIdAdmin = () => {
     },
   });
 
+// useEffect(() => {
+//   if (GetApplyDatabyId) {
+//     const jobId = GetApplyDatabyId.apply_job_id;
+//     const applyuserId = GetApplyDatabyId.apply_user_id;
+//     const applyType = GetApplyDatabyId.apply_type;
+//     const taskId = GetApplyDatabyId.apply_task_id;
+//     const username = GetUserDataById.length > 0 ? GetUserDataById[0].username : "";
+
+//     console.log("Setting form values:", {
+//       jobId,
+//       taskId,
+//       applyuserId,
+//       applyType,
+//       username,
+//       applyId,
+//       UserId,
+//     });
+
+//     setgetTaskId(taskId || null);
+//     setgetJobId(jobId || null);
+
+//     if (applyType === "JOB" && jobId && applyuserId && username) {
+//       apply_job_status_Accept.setValue("jobId", jobId);
+//       apply_job_status_Accept.setValue("userId", UserId);
+//       apply_job_status_Accept.setValue("applyuserId", applyuserId);
+//       apply_job_status_Accept.setValue("applyId", applyId);
+//       apply_job_status_Accept.setValue("applyusername", username);
+
+//       apply_job_status_Reject.setValue("jobId", jobId);
+//       apply_job_status_Reject.setValue("userId", UserId);
+//     } else if (applyType === "TASK" && taskId && applyuserId && username) {
+//       apply_task_status_Accept.setValue("taskId", taskId);
+//       apply_task_status_Accept.setValue("userId", UserId);
+//       apply_task_status_Accept.setValue("applyuserId", applyuserId);
+//       apply_task_status_Accept.setValue("applyId", applyId);
+//       apply_task_status_Accept.setValue("applyusername", username);
+
+//       apply_task_status_Reject.setValue("taskId", taskId);
+//       apply_task_status_Reject.setValue("userId", UserId);
+//     } else {
+//       console.warn("缺少必要數據，無法設置表單值:", {
+//         applyType,
+//         jobId,
+//         taskId,
+//         applyuserId,
+//         username,
+//       });
+//     }
+//   }
+// }, [
+//   GetApplyDatabyId,
+//   GetUserDataById,
+//   UserId,
+//   applyId,
+//   apply_job_status_Accept,
+//   apply_job_status_Reject,
+//   apply_task_status_Accept,
+//   apply_task_status_Reject,
+// ]);
+
 useEffect(() => {
   if (GetApplyDatabyId) {
     const jobId = GetApplyDatabyId.apply_job_id;
@@ -828,21 +889,23 @@ useEffect(() => {
     setgetTaskId(taskId || null);
     setgetJobId(jobId || null);
 
-    if (applyType === "JOB" && jobId && applyuserId && username) {
+    if (applyType === "JOB" && jobId && applyuserId) {
+      console.log("Updating JOB form values:", { jobId, applyuserId, username });
       apply_job_status_Accept.setValue("jobId", jobId);
       apply_job_status_Accept.setValue("userId", UserId);
       apply_job_status_Accept.setValue("applyuserId", applyuserId);
       apply_job_status_Accept.setValue("applyId", applyId);
-      apply_job_status_Accept.setValue("applyusername", username);
+      apply_job_status_Accept.setValue("applyusername", username || "未知用戶");
 
       apply_job_status_Reject.setValue("jobId", jobId);
       apply_job_status_Reject.setValue("userId", UserId);
-    } else if (applyType === "TASK" && taskId && applyuserId && username) {
+    } else if (applyType === "TASK" && taskId && applyuserId) {
+      console.log("Updating TASK form values:", { taskId, applyuserId, username });
       apply_task_status_Accept.setValue("taskId", taskId);
       apply_task_status_Accept.setValue("userId", UserId);
       apply_task_status_Accept.setValue("applyuserId", applyuserId);
       apply_task_status_Accept.setValue("applyId", applyId);
-      apply_task_status_Accept.setValue("applyusername", username);
+      apply_task_status_Accept.setValue("applyusername", username || "未知用戶");
 
       apply_task_status_Reject.setValue("taskId", taskId);
       apply_task_status_Reject.setValue("userId", UserId);
@@ -855,6 +918,12 @@ useEffect(() => {
         username,
       });
     }
+
+    // 驗證表單值是否正確設置
+    console.log("After setting JOB Accept form:", apply_job_status_Accept.getValues());
+    console.log("After setting JOB Reject form:", apply_job_status_Reject.getValues());
+    console.log("After setting TASK Accept form:", apply_task_status_Accept.getValues());
+    console.log("After setting TASK Reject form:", apply_task_status_Reject.getValues());
   }
 }, [
   GetApplyDatabyId,
@@ -867,98 +936,415 @@ useEffect(() => {
   apply_task_status_Reject,
 ]);
 
-  const apply_job_status_Accept_onSubmit = (
-    values: z.infer<typeof Apply_Accept_Schema>
-  ) => {
-    console.log("-- apply_job_status_Accept_data -- :", values, "-- End --");
-    startTransition(async () => {
-      try {
-        const result = await Apply_Accept_Action(values);
-        if ("error" in result) {
-          throw new Error(result.error || "申請接受失敗");
-        }
-        router.push(`/user/${UserId}/admin/applyLists`);
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "未知錯誤";
-        apply_job_status_Accept.setError("root", {
-          message: `表單提交失敗: ${errorMessage}`,
-        });
-      }
-    });
-  };
+  // const apply_job_status_Accept_onSubmit = (
+  //   values: z.infer<typeof Apply_Accept_Schema>
+  // ) => {
+  //   console.log("-- apply_job_status_Accept_data -- :", values, "-- End --");
+  //   startTransition(async () => {
+  //     try {
+  //       const result = await Apply_Accept_Action(values);
+  //       if ("error" in result) {
+  //         throw new Error(result.error || "申請接受失敗");
+  //       }
+  //       router.push(`/user/${UserId}/admin/applyLists`);
+  //     } catch (error) {
+  //       const errorMessage = error instanceof Error ? error.message : "未知錯誤";
+  //       apply_job_status_Accept.setError("root", {
+  //         message: `表單提交失敗: ${errorMessage}`,
+  //       });
+  //     }
+  //   });
+  // };
 
-  const apply_job_status_Reject_onSubmit = (
-    values: z.infer<typeof Apply_Reject_Schema>
-  ) => {
-    console.log("-- apply_job_status_Reject_data -- :", values, "-- End --");
-    startTransition(async () => {
-      try {
-        const result = await Apply_Reject_Action(values);
-        if ("error" in result) {
-          throw new Error(result.error || "申請拒絕失敗");
-        }
-        router.push(`/user/${UserId}/admin/applyLists`);
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "未知錯誤";
-        apply_job_status_Reject.setError("root", {
-          message: `表單提交失敗: ${errorMessage}`,
-        });
+const apply_job_status_Accept_onSubmit = (
+  values: z.infer<typeof Apply_Accept_Schema>
+) => {
+  console.log("-- apply_job_status_Accept_data -- :", values, "-- End --");
+  if (!values.jobId) {
+    console.error("提交失敗: jobId 為空");
+    toast.error("提交失敗: 工作 ID 無效");
+    apply_job_status_Accept.setError("jobId", { message: "工作 ID 為必填項" });
+    return;
+  }
+  startTransition(async () => {
+    try {
+      const result = await Apply_Accept_Action(values);
+      if ("error" in result) {
+        console.error("申請接受失敗:", result.error);
+        toast.error(`申請接受失敗: ${result.error}`);
+        return;
       }
-    });
-  };
+      toast.success("批核成功！");
+      router.push(`/user/${UserId}/admin/applyLists`);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "未知錯誤";
+      console.error("申請接受錯誤:", errorMessage, error);
+      toast.error(`申請接受失敗: ${errorMessage}`);
+      apply_job_status_Accept.setError("root", {
+        message: `表單提交失敗: ${errorMessage}`,
+      });
+    }
+  });
+};
 
-  const apply_task_status_Accept_onSubmit = (
-    values: z.infer<typeof Apply_Accept_Task_Schema>
-  ) => {
-    console.log("-- apply_task_status_Accept_data -- :", values, "-- End --");
-    console.log("Current form state:", apply_task_status_Accept.getValues());
-    console.log("getTaskId state:", getTaskId);
-    console.log("GetApplyDatabyId.apply_task_id:", GetApplyDatabyId?.apply_task_id);
-    startTransition(async () => {
-      try {
-        const result = await Apply_Accept_Task_Action(values);
-        if ("error" in result) {
-          throw new Error(result.error || "任務接受失敗");
-        }
-        router.push(`/user/${UserId}/admin/applyLists`);
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "未知錯誤";
-        apply_task_status_Accept.setError("root", {
-          message: `表單提交失敗: ${errorMessage}`,
-        });
+  // const apply_job_status_Reject_onSubmit = (
+  //   values: z.infer<typeof Apply_Reject_Schema>
+  // ) => {
+  //   console.log("-- apply_job_status_Reject_data -- :", values, "-- End --");
+  //   startTransition(async () => {
+  //     try {
+  //       const result = await Apply_Reject_Action(values);
+  //       if ("error" in result) {
+  //         throw new Error(result.error || "申請拒絕失敗");
+  //       }
+  //       router.push(`/user/${UserId}/admin/applyLists`);
+  //     } catch (error) {
+  //       const errorMessage = error instanceof Error ? error.message : "未知錯誤";
+  //       apply_job_status_Reject.setError("root", {
+  //         message: `表單提交失敗: ${errorMessage}`,
+  //       });
+  //     }
+  //   });
+  // };
+const apply_job_status_Reject_onSubmit = (
+  values: z.infer<typeof Apply_Reject_Schema>
+) => {
+  console.log("-- apply_job_status_Reject_data -- :", values, "-- End --");
+  if (!values.jobId) {
+    console.error("提交失敗: jobId 為空");
+    toast.error("提交失敗: 工作 ID 無效");
+    apply_job_status_Reject.setError("jobId", { message: "工作 ID 為必填項" });
+    return;
+  }
+  startTransition(async () => {
+    try {
+      const result = await Apply_Reject_Action(values);
+      if ("error" in result) {
+        console.error("申請拒絕失敗:", result.error);
+        toast.error(`申請拒絕失敗: ${result.error}`);
+        return;
       }
-    });
-  };
+      toast.success("批核成功！");
+      router.push(`/user/${UserId}/admin/applyLists`);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "未知錯誤";
+      console.error("申請拒絕錯誤:", errorMessage, error);
+      toast.error(`申請拒絕失敗: ${errorMessage}`);
+      apply_job_status_Reject.setError("root", {
+        message: `表單提交失敗: ${errorMessage}`,
+      });
+    }
+  });
+};
 
-  const apply_task_status_Reject_onSubmit = (
-    values: z.infer<typeof Apply_Reject_Task_Schema>
-  ) => {
-    console.log("-- apply_task_status_Reject_data -- :", values, "-- End --");
-    console.log("Current form state:", apply_task_status_Reject.getValues());
-    console.log("getTaskId state:", getTaskId);
-    console.log("GetApplyDatabyId.apply_task_id:", GetApplyDatabyId?.apply_task_id);
-    startTransition(async () => {
-      try {
-        const result = await Apply_Reject_Task_Action(values);
-        if ("error" in result) {
-          throw new Error(result.error || "任務拒絕失敗");
-        }
-        router.push(`/user/${UserId}/admin/applyLists`);
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "未知錯誤";
-        apply_task_status_Reject.setError("root", {
-          message: `表單提交失敗: ${errorMessage}`,
-        });
+  // const apply_task_status_Accept_onSubmit = (
+  //   values: z.infer<typeof Apply_Accept_Task_Schema>
+  // ) => {
+  //   console.log("-- apply_task_status_Accept_data -- :", values, "-- End --");
+  //   console.log("Current form state:", apply_task_status_Accept.getValues());
+  //   console.log("getTaskId state:", getTaskId);
+  //   console.log("GetApplyDatabyId.apply_task_id:", GetApplyDatabyId?.apply_task_id);
+  //   startTransition(async () => {
+  //     try {
+  //       const result = await Apply_Accept_Task_Action(values);
+  //       if ("error" in result) {
+  //         throw new Error(result.error || "任務接受失敗");
+  //       }
+  //       router.push(`/user/${UserId}/admin/applyLists`);
+  //     } catch (error) {
+  //       const errorMessage = error instanceof Error ? error.message : "未知錯誤";
+  //       apply_task_status_Accept.setError("root", {
+  //         message: `表單提交失敗: ${errorMessage}`,
+  //       });
+  //     }
+  //   });
+  // };
+
+const apply_task_status_Accept_onSubmit = (
+  values: z.infer<typeof Apply_Accept_Task_Schema>
+) => {
+  console.log("-- apply_task_status_Accept_data -- :", values, "-- End --");
+  if (!values.taskId) {
+    console.error("提交失敗: taskId 為空");
+    toast.error("提交失敗: 任務 ID 無效");
+    apply_task_status_Accept.setError("taskId", { message: "任務 ID 為必填項" });
+    return;
+  }
+  startTransition(async () => {
+    try {
+      const result = await Apply_Accept_Task_Action(values);
+      if ("error" in result) {
+        console.error("任務接受失敗:", result.error);
+        toast.error(`任務接受失敗: ${result.error}`);
+        return;
       }
-    });
-  };
+      toast.success("批核成功！");
+      router.push(`/user/${UserId}/admin/applyLists`);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "未知錯誤";
+      console.error("任務接受錯誤:", errorMessage, error);
+      toast.error(`任務接受失敗: ${errorMessage}`);
+      apply_task_status_Accept.setError("root", {
+        message: `表單提交失敗: ${errorMessage}`,
+      });
+    }
+  });
+};
+
+  // const apply_task_status_Reject_onSubmit = (
+  //   values: z.infer<typeof Apply_Reject_Task_Schema>
+  // ) => {
+  //   console.log("-- apply_task_status_Reject_data -- :", values, "-- End --");
+  //   console.log("Current form state:", apply_task_status_Reject.getValues());
+  //   console.log("getTaskId state:", getTaskId);
+  //   console.log("GetApplyDatabyId.apply_task_id:", GetApplyDatabyId?.apply_task_id);
+  //   startTransition(async () => {
+  //     try {
+  //       const result = await Apply_Reject_Task_Action(values);
+  //       if ("error" in result) {
+  //         throw new Error(result.error || "任務拒絕失敗");
+  //       }
+  //       router.push(`/user/${UserId}/admin/applyLists`);
+  //     } catch (error) {
+  //       const errorMessage = error instanceof Error ? error.message : "未知錯誤";
+  //       apply_task_status_Reject.setError("root", {
+  //         message: `表單提交失敗: ${errorMessage}`,
+  //       });
+  //     }
+  //   });
+  // };
+
+const apply_task_status_Reject_onSubmit = (
+  values: z.infer<typeof Apply_Reject_Task_Schema>
+) => {
+  console.log("-- apply_task_status_Reject_data -- :", values, "-- End --");
+  if (!values.taskId) {
+    console.error("提交失敗: taskId 為空");
+    toast.error("提交失敗: 任務 ID 無效");
+    apply_task_status_Reject.setError("taskId", { message: "任務 ID 為必填項" });
+    return;
+  }
+  startTransition(async () => {
+    try {
+      const result = await Apply_Reject_Task_Action(values);
+      if ("error" in result) {
+        console.error("任務拒絕失敗:", result.error);
+        toast.error(`任務拒絕失敗: ${result.error}`);
+        return;
+      }
+      toast.success("批核成功！");
+      router.push(`/user/${UserId}/admin/applyLists`);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "未知錯誤";
+      console.error("任務拒絕錯誤:", errorMessage, error);
+      toast.error(`任務拒絕失敗: ${errorMessage}`);
+      apply_task_status_Reject.setError("root", {
+        message: `表單提交失敗: ${errorMessage}`,
+      });
+    }
+  });
+};
 
   console.log("jobId:", getJobId);
   console.log("taskId:", getTaskId);
   console.log("GetApplyDatabyId:", GetApplyDatabyId);
 
-  return (
+//   return (
+//     <div className="flex flex-col min-h-screen bg-white font-noto-sans-tc p-4 sm:p-8">
+//       <div className="max-w-2xl mx-auto w-full space-y-6">
+//         <Link
+//           href={`/user/${UserId}/admin/applyLists/`}
+//           className="text-primary-1 hover:bg-grey-2 rounded-md px-4 py-2 inline-block transition-colors duration-300"
+//         >
+//           返回
+//         </Link>
+//         <h1 className="text-2xl sm:text-3xl text-primary-1 mb-6">申請詳情管理</h1>
+//         <div className="space-y-4">
+//           {isLoading && <div className="text-primary-1 text-base">載入中...</div>}
+//           {error && <div className="text-red-500 text-base">錯誤: {error}</div>}
+//           {GetApplyDatabyId && (
+//             <div className="border border-grey-2 rounded-md p-6 space-y-4">
+//               {GetApplyDatabyId.apply_type === "JOB" && (
+//                 <div>
+//                   <p className="text-primary-1 text-lg font-semibold">工作申請</p>
+//                   <p className="text-primary-1">申請人: {GetApplyDatabyId.applicant_name}</p>
+//                   <p className="text-primary-1">申請編號: {GetApplyDatabyId.apply_code}</p>
+//                   <p className="text-primary-1">申請工作編號: {GetApplyDatabyId.apply_job_code}</p>
+//                   <p className="text-primary-1">申請標題: {GetApplyDatabyId.apply_title}</p>
+//                   <p className="text-primary-1">申請內容: {GetApplyDatabyId.apply_contect}</p>
+//                   <div className="flex space-x-4 mt-4">
+//                     <Form {...apply_job_status_Accept}>
+//                       <form
+//                         onSubmit={apply_job_status_Accept.handleSubmit(
+//                           apply_job_status_Accept_onSubmit
+//                         )}
+//                       >
+//                         <div hidden>
+//                         <FormField
+//                           control={apply_job_status_Accept.control}
+//                           name="jobId"
+//                           render={({ field }) => (
+//                             <FormItem>
+//                               <FormLabel>工作 ID</FormLabel>
+//                               <FormControl>
+//                                 <Input
+//                                   placeholder="工作 ID"
+//                                   value={field.value || GetApplyDatabyId.apply_job_id || ""}
+//                                   onChange={field.onChange}
+//                                   disabled={isPending}
+//                                 />
+//                               </FormControl>
+//                               <FormMessage />
+//                             </FormItem>
+//                           )}
+//                         />
+//                         </div>
+
+
+//                         <Button
+//                           disabled={isPending}
+//                           className="w-24 h-12 bg-primary-1 text-white hover:bg-grey-2 rounded-md transition-colors duration-300"
+//                         >
+//                           接受
+//                         </Button>
+//                       </form>
+//                     </Form>
+//                     <Form {...apply_job_status_Reject}>
+//                       <form
+//                         onSubmit={apply_job_status_Reject.handleSubmit(
+//                           apply_job_status_Reject_onSubmit
+//                         )}
+//                       >
+//                          <div hidden>
+//                         <FormField
+//                           control={apply_job_status_Accept.control}
+//                           name="jobId"
+//                           render={({ field }) => (
+//                             <FormItem>
+//                               <FormLabel>工作 ID</FormLabel>
+//                               <FormControl>
+//                                 <Input
+//                                   placeholder="工作 ID"
+//                                   value={field.value || GetApplyDatabyId.apply_job_id || ""}
+//                                   onChange={field.onChange}
+//                                   disabled={isPending}
+//                                 />
+//                               </FormControl>
+//                               <FormMessage />
+//                             </FormItem>
+//                           )}
+//                         />
+//                         </div>
+//                         <Button
+//                           disabled={isPending}
+//                           className="w-24 h-12 bg-primary-1 text-white hover:bg-grey-2 rounded-md transition-colors duration-300"
+//                         >
+//                           拒絕
+//                         </Button>
+//                       </form>
+//                     </Form>
+//                   </div>
+//                 </div>
+//               )}
+//               {GetApplyDatabyId.apply_type === "TASK" && (
+//                 <div>
+//                   <p className="text-primary-1 text-lg font-semibold">任務申請</p>
+//                   <p className="text-primary-1">申請人: {GetApplyDatabyId.applicant_name}</p>
+//                   <p className="text-primary-1">申請編號: {GetApplyDatabyId.apply_code}</p>
+//                   <p className="text-primary-1">申請任務編號: {GetApplyDatabyId.apply_task_code}</p>
+//                   <p className="text-primary-1">申請標題: {GetApplyDatabyId.apply_title}</p>
+//                   <p className="text-primary-1">申請內容: {GetApplyDatabyId.apply_contect}</p>
+//                   <div className="flex space-x-4 mt-4">
+//                     <Form {...apply_task_status_Accept}>
+//                       <form
+//                         onSubmit={apply_task_status_Accept.handleSubmit(
+//                           apply_task_status_Accept_onSubmit
+//                         )}
+//                       >
+//                         <div hidden>
+//                         <FormField
+//                           control={apply_task_status_Accept.control}
+//                           name="taskId"
+//                           render={({ field }) => (
+//                             <FormItem>
+//                               <FormLabel>任務 ID</FormLabel>
+//                               <FormControl>
+//                                 <Input
+//                                   placeholder="任務 ID"
+//                                   value={field.value || GetApplyDatabyId.apply_task_id || ""}
+//                                   onChange={field.onChange}
+//                                   disabled={isPending}
+//                                 />
+//                               </FormControl>
+//                               <FormMessage />
+//                             </FormItem>
+//                           )}
+//                         />
+//                         </div>
+
+//                         <Button
+//                           disabled={isPending}
+//                           className="w-24 h-12 bg-primary-1 text-white hover:bg-grey-2 rounded-md transition-colors duration-300"
+//                         >
+//                           接受
+//                         </Button>
+//                       </form>
+//                     </Form>
+//                     <Form {...apply_task_status_Reject}>
+//                       <form
+//                         onSubmit={apply_task_status_Reject.handleSubmit(
+//                           apply_task_status_Reject_onSubmit
+//                         )}
+//                       >
+//                         <div hidden>
+//                           <FormField
+//                           control={apply_task_status_Reject.control}
+//                           name="taskId"
+//                           render={({ field }) => (
+//                             <FormItem>
+//                               <FormLabel>任務 ID</FormLabel>
+//                               <FormControl>
+//                                 <Input
+//                                   placeholder="任務 ID"
+//                                   value={field.value || GetApplyDatabyId.apply_task_id || ""}
+//                                   onChange={field.onChange}
+//                                   disabled={isPending}
+//                                 />
+//                               </FormControl>
+//                               <FormMessage />
+//                             </FormItem>
+//                           )}
+//                         />
+//                         </div>
+                        
+//                         <Button
+//                           disabled={isPending}
+//                           className="w-24 h-12 bg-primary-1 text-white hover:bg-grey-2 rounded-md transition-colors duration-300"
+//                         >
+//                           拒絕
+//                         </Button>
+//                       </form>
+//                     </Form>
+//                   </div>
+//                 </div>
+//               )}
+//             </div>
+//           )}
+//           {!isLoading && !error && !GetApplyDatabyId && (
+//             <div className="text-primary-1 text-base">未找到申請</div>
+//           )}
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default ApplyListsByIdAdmin;
+
+
+return (
     <div className="flex flex-col min-h-screen bg-white font-noto-sans-tc p-4 sm:p-8">
+      <Toaster position="top-center" /> {/* 添加 Toaster 組件以顯示 toast 提示 */}
       <div className="max-w-2xl mx-auto w-full space-y-6">
         <Link
           href={`/user/${UserId}/admin/applyLists/`}
@@ -988,30 +1374,28 @@ useEffect(() => {
                         )}
                       >
                         <div hidden>
-                        <FormField
-                          control={apply_job_status_Accept.control}
-                          name="jobId"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>工作 ID</FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="工作 ID"
-                                  value={field.value || GetApplyDatabyId.apply_job_id || ""}
-                                  onChange={field.onChange}
-                                  disabled={isPending}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                          <FormField
+                            control={apply_job_status_Accept.control}
+                            name="jobId"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>工作 ID</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    placeholder="工作 ID"
+                                    value={field.value || GetApplyDatabyId.apply_job_id || ""}
+                                    onChange={field.onChange}
+                                    disabled={isPending}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
                         </div>
-
-
                         <Button
                           disabled={isPending}
-                          className="w-24 h-12 bg-primary-1 text-white hover:bg-grey-2 rounded-md transition-colors duration-300"
+                          className="w-24 h-12 bg-black text-white hover:bg-gray-800 disabled:bg-gray-600 disabled:text-gray-300 rounded-md transition-colors duration-300"
                         >
                           接受
                         </Button>
@@ -1023,29 +1407,29 @@ useEffect(() => {
                           apply_job_status_Reject_onSubmit
                         )}
                       >
-                         <div hidden>
-                        <FormField
-                          control={apply_job_status_Accept.control}
-                          name="jobId"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>工作 ID</FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="工作 ID"
-                                  value={field.value || GetApplyDatabyId.apply_job_id || ""}
-                                  onChange={field.onChange}
-                                  disabled={isPending}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                        <div hidden>
+                          <FormField
+                            control={apply_job_status_Reject.control} // 修正為 apply_job_status_Reject.control
+                            name="jobId"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>工作 ID</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    placeholder="工作 ID"
+                                    value={field.value || GetApplyDatabyId.apply_job_id || ""}
+                                    onChange={field.onChange}
+                                    disabled={isPending}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
                         </div>
                         <Button
                           disabled={isPending}
-                          className="w-24 h-12 bg-primary-1 text-white hover:bg-grey-2 rounded-md transition-colors duration-300"
+                          className="w-24 h-12 bg-black text-white hover:bg-gray-800 disabled:bg-gray-600 disabled:text-gray-300 rounded-md transition-colors duration-300"
                         >
                           拒絕
                         </Button>
@@ -1070,29 +1454,28 @@ useEffect(() => {
                         )}
                       >
                         <div hidden>
-                        <FormField
-                          control={apply_task_status_Accept.control}
-                          name="taskId"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>任務 ID</FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="任務 ID"
-                                  value={field.value || GetApplyDatabyId.apply_task_id || ""}
-                                  onChange={field.onChange}
-                                  disabled={isPending}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                          <FormField
+                            control={apply_task_status_Accept.control}
+                            name="taskId"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>任務 ID</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    placeholder="任務 ID"
+                                    value={field.value || GetApplyDatabyId.apply_task_id || ""}
+                                    onChange={field.onChange}
+                                    disabled={isPending}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
                         </div>
-
                         <Button
                           disabled={isPending}
-                          className="w-24 h-12 bg-primary-1 text-white hover:bg-grey-2 rounded-md transition-colors duration-300"
+                          className="w-24 h-12 bg-black text-white hover:bg-gray-800 disabled:bg-gray-600 disabled:text-gray-300 rounded-md transition-colors duration-300"
                         >
                           接受
                         </Button>
@@ -1106,28 +1489,27 @@ useEffect(() => {
                       >
                         <div hidden>
                           <FormField
-                          control={apply_task_status_Reject.control}
-                          name="taskId"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>任務 ID</FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="任務 ID"
-                                  value={field.value || GetApplyDatabyId.apply_task_id || ""}
-                                  onChange={field.onChange}
-                                  disabled={isPending}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                            control={apply_task_status_Reject.control}
+                            name="taskId"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>任務 ID</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    placeholder="任務 ID"
+                                    value={field.value || GetApplyDatabyId.apply_task_id || ""}
+                                    onChange={field.onChange}
+                                    disabled={isPending}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
                         </div>
-                        
                         <Button
                           disabled={isPending}
-                          className="w-24 h-12 bg-primary-1 text-white hover:bg-grey-2 rounded-md transition-colors duration-300"
+                          className="w-24 h-12 bg-black text-white hover:bg-gray-800 disabled:bg-gray-600 disabled:text-gray-300 rounded-md transition-colors duration-300"
                         >
                           拒絕
                         </Button>
@@ -1136,10 +1518,10 @@ useEffect(() => {
                   </div>
                 </div>
               )}
+              {!isLoading && !error && !GetApplyDatabyId && (
+                <div className="text-primary-1 text-base">未找到申請</div>
+              )}
             </div>
-          )}
-          {!isLoading && !error && !GetApplyDatabyId && (
-            <div className="text-primary-1 text-base">未找到申請</div>
           )}
         </div>
       </div>
@@ -1148,6 +1530,9 @@ useEffect(() => {
 };
 
 export default ApplyListsByIdAdmin;
+
+
+
 // "use client";
 
 // import { Apply_Accept_Schema } from "@/actions/Apply-Accept/schema";

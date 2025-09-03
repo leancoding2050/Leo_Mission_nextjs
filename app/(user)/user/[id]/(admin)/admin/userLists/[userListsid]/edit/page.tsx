@@ -14,7 +14,6 @@ const UserListsByIdEdit = () => {
             <Link href={`/user/${adminId}/admin/userLists/${targetuserId}`}>
             上一頁
             </Link>
-            userListsbyIdedit
             <EditUserForm />
         </div>
     )

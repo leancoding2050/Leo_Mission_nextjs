@@ -211,35 +211,41 @@ const JobList = () => {
   console.log("userData :" , userData)
 
   return (
-    <div className="p-4 ml-[50px]"> {/* 向右移動 50px */}
-      <Link href={`/user/${userId}/profiles`} className="text-blue-500 hover:underline">
-        上一頁
-      </Link>
-      <h1 className="text-2xl font-bold mb-4">工作清單</h1>
+<div className="p-4 ml-[50px]"> {/* 向右移動 50px */}
+  <Link href={`/user/${userId}/profiles`} className="text-blue-500 hover:underline">
+    上一頁
+  </Link>
+  <h1 className="text-2xl font-bold mb-4">工作清單</h1>
 
-      <div className="flex items-center space-x-2 mb-4">
-        <input
-          type="text"
-          placeholder="輸入搜尋內容..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="flex-1 p-2 border rounded"
-        />
-        <select
-          value={searchField}
-          onChange={(e) => setSearchField(e.target.value)}
-          className="p-2 border rounded"
-        >
-          <option value="all">所有字段</option>
-          <option value="job_code">任務編號</option>
-          <option value="job_school_name">學校名稱</option>
-          <option value="job_subject">科目</option>
-          <option value="job_area">地區</option>
-          <option value="job_time_h">時間</option>
-          <option value="job_day">日期</option>
-        </select>
-        <Button onClick={handleSearch}>搜尋</Button>
-      </div>
+  <div className="flex items-center space-x-2 mb-4">
+    <input
+      type="text"
+      placeholder="輸入搜尋內容..."
+      value={searchQuery}
+      onChange={(e) => setSearchQuery(e.target.value)}
+      className="flex-1 p-2 border rounded"
+    />
+    <select
+      value={searchField}
+      onChange={(e) => setSearchField(e.target.value)}
+      className="p-2 border rounded"
+    >
+      <option value="all">所有字段</option>
+      <option value="job_code">任務編號</option>
+      <option value="job_school_name">學校名稱</option>
+      <option value="job_subject">科目</option>
+      <option value="job_area">地區</option>
+      <option value="job_time_h">時間</option>
+      <option value="job_day">日期</option>
+    </select>
+    <Button
+      onClick={handleSearch}
+      className="bg-black text-white hover:bg-gray-800"
+    >
+      搜尋
+    </Button>
+  </div>
+
 
       {searchResults.length > 0 ? (
         <div>

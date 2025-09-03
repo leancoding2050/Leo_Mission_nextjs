@@ -12,7 +12,7 @@ const CreateSalaryRemakePage = () => {
   return (
     <div>
       <h1>createSalaryRemakePage</h1>
-      <Link href={`/LeoSalaryPath/${username}`}>
+      <Link href={`/LeomonthlyrecordsPath/${username}`}>
         返回
       </Link>
             <Create_SalaryRemake_Form/>

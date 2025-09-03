@@ -101,6 +101,7 @@ interface User {
 const JobListById = () => {
   const params = useParams();
   const userId = params?.id as string | undefined;
+  const userListsid = params?.userListsid as string | undefined;
 
   const [getUserData, setGetUserData] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -137,7 +138,7 @@ const JobListById = () => {
 
   return (
     <div className="p-4">
-      <Link href={`/user/${userId}/profiles`} className="text-blue-500 hover:underline">
+      <Link href={`/user/${userId}/admin/userLists/${userListsid}/jobprogressLists`} className="text-blue-500 hover:underline">
         上一頁
       </Link>
       <h1 className="text-xl font-bold mt-4">工作列表</h1>
@@ -146,7 +147,7 @@ const JobListById = () => {
         <div className="mt-4 space-y-4">
           {jobData.map((job) => (
             <div key={job.id} className="p-4 border rounded-lg shadow-sm hover:shadow-md transition-shadow">
-              <Link href={`/user/${userId}/profiles/jobprogressLists/${job.id}`}>
+              <Link href={`/user/${userId}/admin/userLists/${userListsid}/jobprogressLists/${job.id}`}>
                 <p>任務編號: {job.job_code}</p>
                 <p>地點: {job.job_place}</p>
                 <p>時間: {job.job_time_h}</p>

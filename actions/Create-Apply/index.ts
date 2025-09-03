@@ -1,4 +1,6 @@
 // @/actions/Create-Apply/index.ts
+"use server";
+
 import { z } from "zod";
 import { PrismaClient } from "@prisma/client";
 import { Create_Apply_Schema } from "./schema";
@@ -19,8 +21,8 @@ export interface Apply {
   apply_task_code: string;
   apply_task_id: string;
   apply_task_job?: string[];
-  apply_question?: number | null; // 改為 number | null | undefined
-  apply_total_job_in_task?: number | null; // 改為 number | null | undefined
+  apply_question?: number | null;
+  apply_total_job_in_task?: number | null;
   createdAt?: Date;
 }
 
@@ -70,8 +72,8 @@ export async function Create_Apply_Action(
         apply_task_id: "",
         apply_status: false,
         apply_task_job: [],
-        apply_question: null, // 明確設置為 null
-        apply_total_job_in_task: null, // 明確設置為 null
+        apply_question: null,
+        apply_total_job_in_task: null,
       },
     });
 
@@ -81,43 +83,7 @@ export async function Create_Apply_Action(
       return { fieldErrors: error.flatten().fieldErrors };
     }
     return { error: "創建申請失敗" };
+  } finally {
+    await prisma.$disconnect(); // 確保關閉 Prisma 連線，避免連線洩漏
   }
 }
-
-// "use server";
-
-// import { InputType, ReturnType } from "./types";
-// import { db } from "@/lib/db";
-// import { CreateSafeAction } from "@/lib/create-safe-action";
-// import { Create_Apply_Schema } from "./schema";
-// import { Apply } from "@prisma/client";
-
-// const handler = async (data: InputType): Promise<ReturnType> => {
-//   const { job_id, user_id, apply_title, apply_contect, apply_job_code, applicant_name, apply_type } = data;
-
-//   try {
-//     const apply_data = await db.apply.create({
-//       data: {
-//         apply_job_id: job_id,
-//         apply_type: apply_type,
-//         apply_code: apply_job_code,
-//         apply_title: apply_title,
-//         apply_contect: apply_contect,
-//         apply_job_code: apply_job_code,
-//         applicant_name: applicant_name,
-//         apply_task_code: "null",
-//         apply_user_id: user_id,
-//         apply_status: false,
-//         apply_task_id: "null",
-//         apply_task_job: [],
-//       },
-//     });
-
-//     return { data: apply_data };
-//   } catch (error) {
-//     console.error("創建申請錯誤:", error);
-//     return { error: error instanceof Error ? error.message : "內部服務器錯誤" };
-//   }
-// };
-
-// export const Create_Apply_Action = CreateSafeAction(Create_Apply_Schema, handler);

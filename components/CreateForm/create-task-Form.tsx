@@ -409,7 +409,7 @@ const CreateTaskForm = () => {
                       <option value="job_day">日期</option>
                       <option value="showprice">顯示價格</option>
                     </select>
-                    <Button onClick={handleSearch} disabled={isPending}>
+                    <Button onClick={handleSearch} disabled={isPending} className="bg-black text-white hover:bg-gray-800 disabled:bg-gray-600 disabled:text-gray-300" >
                       {isPending ? "搜尋中..." : "搜尋"}
                     </Button>
                   </div>
@@ -419,7 +419,7 @@ const CreateTaskForm = () => {
                         <p>
                           編號: {job.job_code}, 學校: {job.job_school_name}, 科目: {job.job_subject}, 地區: {job.job_area}, 時間: {job.job_time_h}, 日期: {job.job_day.split("T")[0]}, 顯示: {job.showprice ? "顯示價格" : "隱藏價格"}
                         </p>
-                        <Button type="button" onClick={() => handleAddJob(job)} disabled={isPending}>
+                        <Button type="button" onClick={() => handleAddJob(job)} disabled={isPending} className="bg-black text-white hover:bg-gray-800 disabled:bg-gray-600 disabled:text-gray-300"  >
                           加入任務
                         </Button>
                       </div>
@@ -430,7 +430,7 @@ const CreateTaskForm = () => {
                         <p>
                           編號: {job.job_code}, 學校: {job.job_school_name}, 科目: {job.job_subject}, 地區: {job.job_area}, 時間: {job.job_time_h}, 日期: {job.job_day.split("T")[0]}, 顯示: {job.showprice ? "顯示價格" : "隱藏價格"}
                         </p>
-                        <Button type="button" onClick={() => handleAddJob(job)} disabled={isPending}>
+                        <Button type="button" onClick={() => handleAddJob(job)} disabled={isPending} className="bg-black text-white hover:bg-gray-800 disabled:bg-gray-600 disabled:text-gray-300" >
                           加入任務
                         </Button>
                       </div>

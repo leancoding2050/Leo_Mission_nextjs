@@ -930,7 +930,7 @@
 import { Create_Apply_Task_Schema } from "@/actions/Create-Apply-Task/schema";
 import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation"; // 添加 useRouter
 import { useEffect, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -940,6 +940,7 @@ import { Create_Task_Apply_Action } from "@/actions/Create-Apply-Task";
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import toast, { Toaster } from "react-hot-toast"; // 添加 react-hot-toast
 
 interface Job {
   id: string;
@@ -978,7 +979,7 @@ const TaskLisksById = () => {
   const param = useParams();
   const UserId = param?.id as string;
   const TaskId = param?.taskListsid as string;
-
+  const router = useRouter(); // 初始化 useRouter
   const [GetTaskdetailbyId, setGetTaskdetailbyId] = useState<TaskDetail | null>(null);
   const [GetUserListsById, setGetUserListsById] = useState<UserList | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -1070,10 +1071,26 @@ const TaskLisksById = () => {
     apply_task_create_form.setValue("apply_question", choose);
   };
 
-  const apply_task_create_form_onSubmit = (values: z.infer<typeof Create_Apply_Task_Schema>) => {
+const apply_task_create_form_onSubmit = (values: z.infer<typeof Create_Apply_Task_Schema>) => {
     console.log("-- apply_task_data -- :", values, "-- End --");
-    startTransition(() => {
-      Create_Task_Apply_Action(values);
+    startTransition(async () => {
+      try {
+        const result = await Create_Task_Apply_Action(values);
+        if (result.data) {
+          toast.success("申請成功！"); // 顯示成功提示
+          apply_task_create_form.reset(); // 重置表單
+          router.push(`/user/${UserId}/applyLists`); // 導航到申請列表頁面
+        } else if (result.error) {
+          toast.error(result.error); // 顯示錯誤訊息
+        } else if (result.fieldErrors) {
+          Object.entries(result.fieldErrors).forEach(([field, errors]) => {
+            toast.error(`${field}: ${errors.join(", ")}`); // 顯示欄位錯誤
+          });
+        }
+      } catch (err) {
+        console.error("提交錯誤:", err);
+        toast.error("申請提交失敗，請稍後重試。"); // 顯示通用錯誤訊息
+      }
     });
   };
 
@@ -1091,6 +1108,8 @@ const TaskLisksById = () => {
 
   return (
     <div className="min-h-screen bg-white font-noto-sans-tc z-40 ml-[48px] sm:ml-12 md:ml-16 container mx-auto px-4 sm:px-6 lg:px-8 mt-2.5">
+      <Toaster position="top-center" /> {/* 添加 Toaster 組件以顯示 toast 提示 */}
+      
       <div className="mb-4">
         <Link
           href={`/user/${UserId}/taskLists`}

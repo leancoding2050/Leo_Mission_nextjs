@@ -544,32 +544,43 @@ const TaskList = () => {
 
       <div>TaskList</div>
 
-      <div className="flex items-center space-x-2">
-        <input
-          type="text"
-          placeholder="輸入搜索內容..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="flex-1"
-        />
-        <select
-          value={searchField}
-          onChange={(e) => setSearchField(e.target.value)}
-        >
-          <option value="all">所有字段</option>
-          <option value="task_title">任務標題</option>
-          <option value="task_subject">任務科目</option>
-          <option value="task_contect">任務內容</option>
-          <option value="task_code">任務代碼</option>
-          <option value="task_area">任務地區</option>
-          <option value="teacher">老師</option>
-          <option value="School_name">學校名稱</option>
-        </select>
-        <Button onClick={handleSearch}>搜索</Button>
-        <Button onClick={() => { setSearchQuery(""); setSearchResults([]); }}>
-          重置搜索
-        </Button>
-      </div>
+<div className="flex items-center space-x-2">
+  <input
+    type="text"
+    placeholder="輸入搜索內容..."
+    value={searchQuery}
+    onChange={(e) => setSearchQuery(e.target.value)}
+    className="flex-1"
+  />
+  <select
+    value={searchField}
+    onChange={(e) => setSearchField(e.target.value)}
+  >
+    <option value="all">所有字段</option>
+    <option value="task_title">任務標題</option>
+    <option value="task_subject">任務科目</option>
+    <option value="task_contect">任務內容</option>
+    <option value="task_code">任務代碼</option>
+    <option value="task_area">任務地區</option>
+    <option value="teacher">老師</option>
+    <option value="School_name">學校名稱</option>
+  </select>
+  <Button
+    onClick={handleSearch}
+    className="bg-black text-white hover:bg-gray-800"
+  >
+    搜索
+  </Button>
+  <Button
+    onClick={() => {
+      setSearchQuery("");
+      setSearchResults([]);
+    }}
+    className="bg-black text-white hover:bg-gray-800"
+  >
+    重置搜索
+  </Button>
+</div>
 
       {searchResults.length === 0 && TaskData.length === 0 ? (
         <p>沒有數據</p>

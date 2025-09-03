@@ -17,7 +17,7 @@ const handler = async (data: InputType): Promise<ReturnType> => {
         id: taskId,
       },
     });
-
+    console.log("Task Exists:", taskExists);
     if (!taskExists) {
       console.log(`Task not found for taskId: ${taskId}`);
       return {

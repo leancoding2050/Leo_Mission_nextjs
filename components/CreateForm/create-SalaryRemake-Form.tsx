@@ -47,7 +47,7 @@ const Create_SalaryRemake_Form = () => {
             console.log("工作創建成功:", result);
           if (result.data) {
             // 創建成功後跳轉到指定頁面
-            router.push(`/LeoSalaryPath`); // 例如跳轉到工作列表頁面
+            router.push(`/LeomonthlyrecordsPath`); // 例如跳轉到工作列表頁面
           }
           })
         })

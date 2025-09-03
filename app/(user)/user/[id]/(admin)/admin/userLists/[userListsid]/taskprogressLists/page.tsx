@@ -202,7 +202,7 @@ const AdminTaskListByUser = () => {
 
   return (
     <div className="p-4">
-      <Link href={`/user/${adminId}/admin/userLists/${targetUserId}`} className="text-blue-500 hover:underline">
+      <Link href={`/user/${adminId}/admin/userLists/taskprogressLists`} className="text-blue-500 hover:underline">
         上一頁
       </Link>
       <h1 className="text-xl font-bold mt-4">{getUserData.nickname} 的任務列表</h1>
@@ -237,7 +237,7 @@ const AdminTaskListByUser = () => {
           <p className="font-semibold">搜索結果</p>
           {searchResults.map((task) => (
             <div key={task.id} className="p-4 border rounded-lg shadow-sm mt-2">
-              <Link href={`/user/${adminId}/profiles/taskprogressLists/${task.id}`}>
+              <Link href={`/user/${adminId}/admin/userLists/taskprogressLists/${task.id}`}>
                 <p>任務標題: {task.task_title}</p>
                 <p>科目: {task.task_subject}</p>
                 <p>內容: {task.task_contect}</p>
@@ -258,7 +258,7 @@ const AdminTaskListByUser = () => {
         {taskData.length > 0 ? (
           taskData.map((task) => (
             <div key={task.id} className="p-4 border rounded-lg shadow-sm mt-2">
-              <Link href={`/user/${adminId}/profiles/taskprogressLists/${task.id}`}>
+              <Link href={`/user/${adminId}/admin/userLists/taskprogressLists/${task.id}`}>
                 <p>任務標題: {task.task_title}</p>
                 <p>科目: {task.task_subject}</p>
                 <p>內容: {task.task_contect}</p>
